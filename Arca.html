@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arca</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    
+<script src="https://kit.fontawesome.com/b8bd567610.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container-falkens">
+        <h1>Arca</h1>
+        <p>Rebrandign and logo design for the association ARCA ASBL Fédération wallonne de services d'accueil et d'hébergement.
+            </p>
+        <div class="photos">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_01.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_03.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_04.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_05.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_06.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_07.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_08.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_10.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_11.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_12.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_14.jpg">
+            <img class="slide-in" src="immagini/Giacomo_Garetto_ARCA_présentation_Pagina_18.jpg">
+        </div>
+    </div>
+    <div class="buttoncontainer-chiaro">
+        <a href="index.html#works"><button class="indietro-chiaro">Other works</button></a>
+    </div>
+    
+    <div class="copyright black">
+        <p>Copyright © Giacomo Garetto </p>
+      </div>
+
+
+<script>
+const images = document.querySelectorAll(".slide-in");
+
+const appearOptions = {
+  threshold: 0,
+  rootMargin: "0px 0px 25% 0px"
+};
+
+const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) {
+      return;
+    } else {
+      entry.target.classList.add("active");
+      appearOnScroll.unobserve(entry.target);
+    }
+  });
+}, appearOptions);
+
+images.forEach(image => {
+  appearOnScroll.observe(image);
+});
+
+
+</script>   
+
+</body>
+</html>

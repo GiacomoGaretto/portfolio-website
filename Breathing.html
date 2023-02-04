@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breathing</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    
+<script src="https://kit.fontawesome.com/b8bd567610.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container folianghe">
+        <h1>Breathing</h1>
+        <p>Breathing nasce dalla sperimentazione di forme generate proceduralmente in 3D. Durante la pandemia il “respiro” è sempre stato al centro dell’attenzione,
+           sia a livello salutare sia a livello sociale, la quarantena ci ha fatto “mancare il respiro”. Breathing non ha forme che rimandano ad un essere animato,
+            ma non per questo, non è in grado di respirare. Breathing è una raffigurazione di questa difficoltà a respirare che alcuni di noi hanno sperimentato.</p>
+        <div class="photos">
+            <img class="slide-in" src="immagini/pietra1.jpg">
+            <div class="slide-in" style="padding:100% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/793019366?h=e968eb7010&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Breathing - Giacomo Garetto"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+            <img class="slide-in" src="immagini/pietra2.jpg">
+            <img class="slide-in" src="immagini/pietra3.jpg">
+            <img class="slide-in" src="immagini/pietra4.jpg">
+        </div>
+    </div>
+    <div class="buttoncontainer">
+        <a href="index.html#works"><button class="indietro">Other works</button></a>
+    </div>
+    
+    <div class="copyright black">
+        <p>Copyright © Giacomo Garetto </p>
+      </div>
+
+      <script>
+        const images = document.querySelectorAll(".slide-in");
+        
+        const appearOptions = {
+          threshold: 0,
+          rootMargin: "0px 0px 50% 0px"
+        };
+        
+        const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) {
+              return;
+            } else {
+              entry.target.classList.add("active");
+              appearOnScroll.unobserve(entry.target);
+            }
+          });
+        }, appearOptions);
+        
+        images.forEach(image => {
+          appearOnScroll.observe(image);
+        });
+        
+        
+        </script>
+        
+</body>
+</html>
