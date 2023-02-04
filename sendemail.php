@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   // Recipient email address
-  $to = 'recipient@example.com';
+  $to = 'giacomo.garetto@gmail.com';
 
   // Subject of the email
   $subject = 'New message from ' . $name;
