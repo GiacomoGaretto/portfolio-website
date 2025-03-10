@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giacomo Garetto - Salotto di Milano</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="project-page inverted-theme">
+    <div id="header2">
+        <a id="homeBtn" href="index.html">GIACOMO GARETTO</a>
+        <p id="head3">15/01/2024</p>
+        <div id="scroll-progress"></div>
+    </div>
+
+    <div id="project-header">
+        <h1>Salotto di Milano</h1>
+        <p>The Galleria Vittorio Emanuele II in the metaverse</p>
+    </div>
+
+    <div id="galleria">
+
+        <div class="img-container slide-in">
+            <figure scroll="reveal">
+                <img src="images/SALOTTO/gal2.jpg" alt="">
+            </figure>
+        </div>
+
+
+        <div class="text-block-center">
+            <p>This project was developed for the Anthropology of Communication course in the Master's program in
+                Communication Design at Politecnico di Milano. It is part of the "CityVerse" concept, which involves
+                bringing elements of the urban fabric into the metaverse to enable digital interaction and expand its
+                potential applications.</p>
+        </div>
+
+
+        <div class="full-width-media">
+            <figure scroll="reveal">
+                <video autoplay loop muted playsinline>
+                    <source src="videos/Galleria.mp4" type="video/mp4">
+                    Il tuo browser non supporta il video.
+                </video>
+            </figure>
+        </div>
+
+        <div class="text-block">
+            <p>The Galleria Vittorio Emanuele II in Milan was chosen as a symbolic element of the city and for its floor
+                plan, which is divided into four sections. The 3D model was personally created in Blender, aiming to
+                simplify its forms while preserving the architectural charm of the gallery.</p>
+        </div>
+
+        <div class="img-row">
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal3.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal4.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="image-triple">
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal6.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal7.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal8.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="text-block">
+            <p>Using the online platform "Spatial.io" and its custom editor on Unity, the gallery was integrated into a
+                digital world. Within this space, an interactive experience was designed for the player, whose goal is
+                to collect elements that provide information about the gallery.</p>
+        </div>
+
+        <div class="image-right">
+            <figure scroll="reveal">
+                <img src="images/SALOTTO/gal5.jpg" alt="">
+            </figure>
+            <div class="text-block">
+                <p>The four sections of the gallery each represent a different historical period. <br> A custom texture
+                    was
+                    created for each section so that, once the exploration is completed, its appearance changes from its
+                    present-day look to a historically projected version.</p>
+            </div>
+        </div>
+
+        <div class="image-double">
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal18.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal9.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="img-row">
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal10.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal11.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="img-container slide-in">
+            <figure scroll="reveal">
+                <img src="images/SALOTTO/gal19.jpg" alt="">
+            </figure>
+        </div>
+
+        <div class="text-block">
+            <p>The brand identity of Salotto di Milano is designed around the shapes of the Galleria, viewed from above
+                in an orthogonal projection.</p>
+        </div>
+
+        <div class="img-row">
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal12.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/SALOTTO/gal13.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione Crediti -->
+    <footer class="crediti">
+        <div class="container">
+            <div class="crediti-content">
+                <div class="crediti-column">
+                    <p class="crediti-title">TEAM</p>
+                </div>
+                <div class="crediti-column">
+                    <p>Giacomo Garetto</p>
+                    <p>Gina Pulcini</p>
+                    <p>Camilla Memola</p>
+                </div>
+                <div class="crediti-column">
+                    <p>Elena Butitta</p>
+                    <p>Laura Chojnacka</p>
+                </div>
+                <div class="crediti-column">
+                    <p class="crediti-title">CLIENT</p>
+                </div>
+                <div class="crediti-column">
+                    <p>Politecnico di Torino</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function updateScrollProgress() {
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            let scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrollPercentage = (scrollTop / scrollHeight) * 100;
+
+            // Selezioniamo gli elementi
+            let homeBtn = document.getElementById("homeBtn");
+            let header = document.getElementById("header2");
+
+            // Otteniamo la larghezza e i margini sinistro e destro di homeBtn
+            let homeBtnWidth = homeBtn.offsetWidth;
+            let homeBtnStyles = window.getComputedStyle(homeBtn);
+            let homeBtnMarginLeft = parseFloat(homeBtnStyles.marginLeft);
+            let homeBtnMarginRight = parseFloat(homeBtnStyles.marginRight);
+
+            // Otteniamo il padding-left dell'header
+            let headerStyles = window.getComputedStyle(header);
+            let headerPaddingLeft = parseFloat(headerStyles.paddingLeft);
+
+            let headerWidth = header.offsetWidth;
+
+            // Calcoliamo la larghezza della barra di avanzamento
+            let progressWidth = (homeBtnMarginLeft + homeBtnWidth + homeBtnMarginRight + headerPaddingLeft) +
+                ((headerWidth - (homeBtnWidth + homeBtnMarginLeft + homeBtnMarginRight + headerPaddingLeft)) * (scrollPercentage / 100));
+
+            // Applichiamo la larghezza aggiornata
+            document.getElementById("scroll-progress").style.width = progressWidth + "px";
+        }
+
+        // Assegniamo la funzione all'evento scroll
+        window.addEventListener("scroll", updateScrollProgress);
+
+        // Eseguiamo la funzione una volta al caricamento della pagina
+        document.addEventListener("DOMContentLoaded", updateScrollProgress);
+    </script>
+
+
+    <script>
+        function revealOnScroll() {
+            let elements = document.querySelectorAll('.img-container, .text-block, .text-block-center, figure[scroll="reveal"]');
+            let windowHeight = window.innerHeight;
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            let scrollHeight = document.documentElement.scrollHeight - windowHeight;
+
+            elements.forEach(el => {
+                let position = el.getBoundingClientRect().top;
+
+                // Se l'elemento è visibile nel viewport o lo scroll è al 100%, lo mostriamo
+                if (position < windowHeight * 0.85 || scrollTop >= scrollHeight) {
+                    el.classList.add('show');
+                }
+            });
+        }
+
+        document.addEventListener("scroll", revealOnScroll);
+        document.addEventListener("DOMContentLoaded", revealOnScroll);
+    </script>
+
+
+
+</body>
+
+</html>
