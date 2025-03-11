@@ -791,6 +791,12 @@ figure[scroll="reveal"].show {
         height: 100%;
         border-radius: 0;
         transform: none;
+        transition: none;
+    }
+
+    #aboutOverlay{
+        transition: none;
+        transform: none;
     }
 
     /* Fix the about text container for mobile */
