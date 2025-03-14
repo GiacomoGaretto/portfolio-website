@@ -73,6 +73,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
     <script>
 
         // Quando clicco su ABOUT, attivo la classe
@@ -97,10 +99,13 @@
 
 
         let scene, camera, renderer, galaxy, raycaster, mouse;
-        let rotatingSpeed = 0.001;  // Velocità di rotazione iniziale
+        let rotatingSpeed = window.innerWidth <= 768 ? 0.00001 : 0.001;
         let rotating = true;
         let projectsMoving = true;
         let galaxyPositionY = 9;
+        let isModelActive = false; // Stato iniziale: la sfera è visibile
+        let modelVisible = false; // Stato per il click su mobile
+
 
         let centralSphere;
         let isCentralHovered = false;
@@ -135,6 +140,16 @@
 
         const ringDistance = 6;
 
+        // Carica il modello 3D
+        const gltfLoader = new THREE.GLTFLoader();
+        let model3D;
+        gltfLoader.load('3D.glb', function (gltf) {
+            model3D = gltf.scene;
+            // Imposta la scala iniziale del modello più grande
+            model3D.scale.set(25, 25, 25);
+            model3D.visible = false;
+            galaxy.add(model3D);
+        });
 
 
 
@@ -178,6 +193,12 @@
             window.addEventListener('touchstart', activateUserInteraction);
         }
 
+        window.addEventListener('resize', () => {
+            if (!isRotationPaused) {
+                rotatingSpeed = window.innerWidth <= 768 ? 0.00001 : 0.001;
+            }
+        });
+
         function activateUserInteraction() {
             userInteracted = true; // L'utente ha interagito, attiva l'hover
             window.removeEventListener('mousemove', activateUserInteraction);
@@ -216,10 +237,12 @@
         // Crea la sfera centrale
         function createCentralSphere() {
             const sphereGeometry = new THREE.SphereGeometry(4, 25, 25);
-            const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x444444 });
-            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-            galaxy.add(sphere);
+            const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0xffffff, shininess: 11 });
+            // Salva la sfera in una variabile globale
+            centralSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            galaxy.add(centralSphere);
         }
+
 
         // Crea gli anelli e i progetti
         function createRingsAndProjects() {
@@ -416,14 +439,14 @@
         }
 
         function addLighting() {
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
 
-            const pointLight = new THREE.PointLight(0xffffff, 1);
+            const pointLight = new THREE.PointLight(0xffffff, 0.65);
             pointLight.position.set(0, 0, 50);
             scene.add(pointLight);
         }
@@ -434,19 +457,52 @@
         }
 
         function onClick(event) {
-            if (window.innerWidth <= 768) {
-                // Su mobile, esegui il raycaster direttamente al click
+            if (isMobileDevice()) {
+                // Su mobile, controlla prima se è stato cliccato il modello o la sfera centrale
                 raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObjects(projectsMeshes);
-                if (intersects.length > 0) {
-                    const clickedProject = intersects[0].object;
-                    // Reindirizza immediatamente al progetto
-                    window.location.href = clickedProject.userData.url;
+                const centralIntersects = raycaster.intersectObjects([centralSphere, model3D]);
+
+                if (centralIntersects.length > 0) {
+                    if (centralIntersects[0].object === centralSphere && !isModelActive && !isAnimating) {
+                        // Click sulla sfera centrale
+                        isAnimating = true;
+                        showModel(() => {
+                            isModelActive = true;
+                            isAnimating = false;
+                            // Avvia il timer di 15 secondi
+                            modelTimer = setTimeout(() => {
+                                if (!isAnimating) {
+                                    isAnimating = true;
+                                    showSphere(() => {
+                                        isModelActive = false;
+                                        isAnimating = false;
+                                    });
+                                }
+                            }, 10000);
+                        });
+                    } else if (centralIntersects[0].object === model3D && isModelActive && !isAnimating) {
+                        // Click sul modello 3D
+                        if (modelTimer) {
+                            clearTimeout(modelTimer);
+                            modelTimer = null;
+                        }
+                        isAnimating = true;
+                        showSphere(() => {
+                            isModelActive = false;
+                            isAnimating = false;
+                        });
+                    }
+                } else {
+                    // Controlla se è stato cliccato un progetto
+                    const projectIntersects = raycaster.intersectObjects(projectsMeshes);
+                    if (projectIntersects.length > 0) {
+                        const clickedProject = projectIntersects[0].object;
+                        window.location.href = clickedProject.userData.url;
+                    }
                 }
             } else {
-                // Comportamento standard per desktop
+                // Comportamento desktop esistente
                 if (INTERSECTED) {
-                    console.log('Progetto cliccato, espansione in corso');
                     if (infoCard.style.display === 'block') {
                         infoCard.classList.add('expandCard');
                         const projectUrl = INTERSECTED.userData.url;
@@ -454,8 +510,6 @@
                             setTimeout(() => {
                                 window.location.href = projectUrl;
                             }, 500);
-                        } else {
-                            console.error('Nessun URL specificato per questo progetto');
                         }
                     }
                 }
@@ -508,8 +562,10 @@
         }
 
         function startRotation() {
+            const targetSpeed = window.innerWidth <= 768 ? 0.0001 : 0.001;  // Velocità dimezzata su mobile
+
             new TWEEN.Tween({ speed: 0 })
-                .to({ speed: 0.001 }, 1000)
+                .to({ speed: targetSpeed }, 1000)
                 .easing(TWEEN.Easing.Quadratic.In)
                 .onUpdate(function (obj) {
                     rotatingSpeed = obj.speed;
@@ -560,6 +616,40 @@
                 startProjectsMovement();
             }
         });
+
+        function showModel(callback) {
+            animateScale3D(centralSphere, 0, 300, () => {
+                centralSphere.visible = false;
+                model3D.visible = true;
+                animateScale3D(model3D, 25, 300, callback);
+            });
+        }
+
+        function showSphere(callback) {
+            animateScale3D(model3D, 0, 300, () => {
+                model3D.visible = false;
+                centralSphere.visible = true;
+                animateScale3D(centralSphere, 1, 300, callback);
+            });
+        }
+
+        function animateScale3D(object, targetScale, duration, onComplete) {
+            if (!object) return;
+
+            new TWEEN.Tween({ scale: object.scale.x })
+                .to({ scale: targetScale }, duration)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .onUpdate(function (obj) {
+                    object.scale.set(obj.scale, obj.scale, obj.scale);
+                })
+                .onComplete(() => {
+                    if (onComplete) onComplete();
+                })
+                .start();
+        }
+
+
+
 
         function animateScale(object, targetScale, duration, onCompleteCallback) {
             // Se l'oggetto è già alla scala target, esegui il callback e esci
@@ -623,13 +713,19 @@
         }
 
         let userInteracted = false; // Flag per controllare se l'utente ha interagito
+        let isAnimating = false;
+        let modelTimer = null;
+
+        function isMobileDevice() {
+            return (window.innerWidth <= 768) || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        }
 
 
         // Modifica la funzione `animate` per rispettare lo stato di `rotating`
         function animate() {
             requestAnimationFrame(animate);
 
-            // Rotazione e altri aggiornamenti della galassia
+            // Rotazione e aggiornamenti della galassia
             galaxy.rotation.y += rotating ? rotatingSpeed : 0;
             galaxy.rotation.y += scrollDelta;
             galaxy.rotation.y += touchDeltaX;
@@ -639,11 +735,50 @@
 
             TWEEN.update();
             updateProjects();
-
             galaxy.position.y = galaxyPositionY;
 
-            // Disabilita il raycaster su mobile per evitare ghost click
-            if (window.innerWidth > 768) {
+            // Controllo del raycaster per l'hover sulla sfera centrale (solo su desktop)
+            if (!isMobileDevice()) {
+                if (!document.body.classList.contains('about-active') && userInteracted) {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects([centralSphere, model3D]);
+
+                    if (intersects.length > 0) {
+                        // Se interseca la sfera e il modello non è attivo
+                        if (intersects[0].object === centralSphere && !isModelActive && !isAnimating) {
+                            isAnimating = true;
+                            showModel(() => {
+                                isModelActive = true;
+                                isAnimating = false;
+                                // Avvia il timer di 15 secondi
+                                modelTimer = setTimeout(() => {
+                                    if (!isAnimating) {
+                                        isAnimating = true;
+                                        showSphere(() => {
+                                            isModelActive = false;
+                                            isAnimating = false;
+                                        });
+                                    }
+                                }, 10000);
+                            });
+                        }
+                        // Se interseca il modello 3D e il modello è attivo
+                        else if (intersects[0].object === model3D && isModelActive && !isAnimating) {
+                            // Cancella il timer esistente
+                            if (modelTimer) {
+                                clearTimeout(modelTimer);
+                                modelTimer = null;
+                            }
+                            isAnimating = true;
+                            showSphere(() => {
+                                isModelActive = false;
+                                isAnimating = false;
+                            });
+                        }
+                    }
+                }
+
+                // Controllo intersezioni per i progetti (solo su desktop)
                 if (!document.body.classList.contains('about-active') && userInteracted) {
                     raycaster.setFromCamera(mouse, camera);
                     const intersects = raycaster.intersectObjects(projectsMeshes);
@@ -681,6 +816,8 @@
 
             renderer.render(scene, camera);
         }
+
+
 
 
         init();
