@@ -143,12 +143,57 @@
         // Carica il modello 3D
         const gltfLoader = new THREE.GLTFLoader();
         let model3D;
-        gltfLoader.load('3D.glb', function (gltf) {
+        let mixer;
+        let modelAnimation;
+        let morphTargetMeshes = [];
+        let clock = new THREE.Clock(); // Usa il clock per il delta time
+
+        gltfLoader.load('rocket.glb', function (gltf) {
             model3D = gltf.scene;
-            // Imposta la scala iniziale del modello più grande
-            model3D.scale.set(25, 25, 25);
+            model3D.scale.set(0, 0, 0); // Inizia con scala 0
             model3D.visible = false;
             galaxy.add(model3D);
+
+            console.log("Modello caricato:", model3D);
+
+            // Debug: stampa la struttura del modello
+            model3D.traverse(node => {
+                if (node.isMesh) {
+                    console.log("Mesh trovata:", node.name);
+                    if (node.morphTargetInfluences) {
+                        console.log("  Ha morphTargetInfluences:", node.morphTargetInfluences.length);
+                        console.log("  MorphTargetDictionary:", node.morphTargetDictionary);
+                    }
+                }
+            });
+
+            // Configura il mixer per le animazioni
+            mixer = new THREE.AnimationMixer(model3D);
+
+            // Se il file GLTF contiene animazioni, imposta l'azione
+            if (gltf.animations.length > 2) {
+                console.log("Animazioni trovate:", gltf.animations.length);
+                // Crea le azioni per le animazioni 0 e 2
+                modelAnimation0 = mixer.clipAction(gltf.animations[0]);
+                modelAnimation2 = mixer.clipAction(gltf.animations[2]);
+
+                // Imposta entrambe in loop e abilitate
+                modelAnimation0.setLoop(THREE.LoopRepeat, Infinity);
+                modelAnimation2.setLoop(THREE.LoopRepeat, Infinity);
+                modelAnimation0.enabled = true;
+                modelAnimation2.enabled = true;
+                modelAnimation0.setEffectiveWeight(1);
+                modelAnimation2.setEffectiveWeight(1);
+                // Non avviarle subito: le facciamo partire in showModel
+            }
+
+            // Raccogli le mesh con morph targets (senza modificarne le influenze)
+            model3D.traverse(child => {
+                if (child.isMesh && child.morphTargetInfluences) {
+                    morphTargetMeshes.push(child);
+                    console.log("Aggiunti morph target mesh:", child.name);
+                }
+            });
         });
 
 
@@ -439,14 +484,14 @@
         }
 
         function addLighting() {
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
 
-            const pointLight = new THREE.PointLight(0xffffff, 0.65);
+            const pointLight = new THREE.PointLight(0xffffff, 1);
             pointLight.position.set(0, 0, 50);
             scene.add(pointLight);
         }
@@ -621,11 +666,29 @@
             animateScale3D(centralSphere, 0, 300, () => {
                 centralSphere.visible = false;
                 model3D.visible = true;
-                animateScale3D(model3D, 25, 300, callback);
+
+                // Avvia entrambe le animazioni
+                if (modelAnimation0 && modelAnimation2) {
+                    console.log("Avvio animazioni morphTarget 0 e 2");
+                    modelAnimation0.reset();
+                    modelAnimation2.reset();
+                    modelAnimation0.play();
+                    modelAnimation2.play();
+                }
+
+                animateScale3D(model3D, 1.8, 300, () => {
+                    console.log("Modello completamente visibile e animato");
+                    if (callback) callback();
+                });
             });
         }
 
+        // Modifica la funzione showSphere
         function showSphere(callback) {
+            // Ferma l'animazione quando il modello scompare
+            if (modelAnimation) {
+                modelAnimation.stop();
+            }
             animateScale3D(model3D, 0, 300, () => {
                 model3D.visible = false;
                 centralSphere.visible = true;
@@ -733,15 +796,33 @@
             touchDeltaX *= 0.9;
             touchDeltaY *= 0.9;
 
+            const delta = clock.getDelta();
+
+            // Aggiorna il mixer usando il delta calcolato
+            if (mixer) {
+                mixer.update(delta);
+
+                // Debug: verifica se l'animazione è attiva
+                if (modelAnimation && model3D.visible) {
+                    if (!modelAnimation.isRunning()) {
+                        console.log("Riavvio animazione");
+                        modelAnimation.play();
+                    }
+                }
+            }
+
             TWEEN.update();
             updateProjects();
             galaxy.position.y = galaxyPositionY;
 
-            // Controllo del raycaster per l'hover sulla sfera centrale (solo su desktop)
+            // Controllo del raycaster per l'hover (solo desktop)
             if (!isMobileDevice()) {
                 if (!document.body.classList.contains('about-active') && userInteracted) {
                     raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects([centralSphere, model3D]);
+                    const objectsToTest = [];
+                    if (centralSphere && centralSphere.visible) objectsToTest.push(centralSphere);
+                    if (model3D && model3D.visible) objectsToTest.push(model3D);
+                    const intersects = raycaster.intersectObjects(objectsToTest);
 
                     if (intersects.length > 0) {
                         // Se interseca la sfera e il modello non è attivo
@@ -750,7 +831,7 @@
                             showModel(() => {
                                 isModelActive = true;
                                 isAnimating = false;
-                                // Avvia il timer di 15 secondi
+                                // Avvia il timer (ad esempio 10 secondi)
                                 modelTimer = setTimeout(() => {
                                     if (!isAnimating) {
                                         isAnimating = true;
@@ -762,9 +843,8 @@
                                 }, 10000);
                             });
                         }
-                        // Se interseca il modello 3D e il modello è attivo
+                        // Se interseca il modello 3D ed è attivo
                         else if (intersects[0].object === model3D && isModelActive && !isAnimating) {
-                            // Cancella il timer esistente
                             if (modelTimer) {
                                 clearTimeout(modelTimer);
                                 modelTimer = null;
@@ -776,14 +856,11 @@
                             });
                         }
                     }
-                }
 
-                // Controllo intersezioni per i progetti (solo su desktop)
-                if (!document.body.classList.contains('about-active') && userInteracted) {
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(projectsMeshes);
-                    if (intersects.length > 0) {
-                        const intersected = intersects[0].object;
+                    // Logica per i progetti (solo su desktop)
+                    const projectIntersects = raycaster.intersectObjects(projectsMeshes);
+                    if (projectIntersects.length > 0) {
+                        const intersected = projectIntersects[0].object;
                         if (INTERSECTED !== intersected) {
                             if (INTERSECTED) {
                                 labels[projectsMeshes.indexOf(INTERSECTED)].visible = true;
