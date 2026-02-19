@@ -251,7 +251,12 @@
                     // Usa la scala definita nella configurazione
                     const scaleFactor = config.scale / (maxDim || 1);
 
-                    loadedShapes[index] = positions.map(p => p.sub(center).multiplyScalar(scaleFactor));
+                    // Aggiungi una leggera rotazione casuale per inclinare l'asse verticale
+                    const randomTiltX = (Math.random() - 0.5) * 0.5; // Inclinazione casuale X (+/- 15 gradi circa)
+                    const randomTiltZ = (Math.random() - 0.5) * 0.5; // Inclinazione casuale Z
+                    const tiltEuler = new THREE.Euler(randomTiltX, 0, randomTiltZ);
+
+                    loadedShapes[index] = positions.map(p => p.sub(center).applyEuler(tiltEuler).multiplyScalar(scaleFactor));
                     console.log(`Forma Progetto ${index + 1} caricata:`, loadedShapes[index].length, "punti");
                 }
             });
