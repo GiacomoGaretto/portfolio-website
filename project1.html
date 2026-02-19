@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giacomo Garetto - Digital Forest</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="project-page">
+    <div id="header2">
+        <a id="homeBtn" href="index.html">GIACOMO GARETTO</a>
+        <p id="head3">25/02/2025</p>
+        <div id="scroll-progress"></div>
+    </div>
+
+    <div id="project-header">
+        <h1>Digital Forest</h1>
+        <p>Four years of human categorization of trail cam footage</p>
+    </div>
+
+    <div id="galleria">
+
+        <div class="full-width-media">
+            <figure scroll="reveal">
+                <video autoplay loop muted playsinline>
+                    <source src="videos/G6_videoinstallation.mp4" type="video/mp4">
+                    Il tuo browser non supporta il video.
+                </video>
+            </figure>
+        </div>
+
+        <div class="text-block-center">
+            <p>Trail cams are motion-triggered devices used to record animals in their natural habitats. Initially
+                designed for research and wildlife monitoring, these videos have become popular content on social media
+                platforms. Once published, animals are transformed into digital entities, recontextualized within the
+                online ecosystem.</p>
+        </div>
+
+        <div class="img-container slide-in">
+            <figure scroll="reveal">
+                <img src="images/DATA/data1.jpg" alt="">
+            </figure>
+
+        </div>
+
+        <div class="text-block">
+            <p>The project examines 273 trail cam videos shared on Italian social platforms (Instagram, Facebook,
+                TikTok, and YouTube) between 2021 and 2024. Hashtags typed into posted video descriptions were
+                considered tools of human categorization. </p>
+        </div>
+
+        <div class="img-row">
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/DATA/data2.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/DATA/data3.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="text-block">
+            <p>The installation is divided into two layers of meaning: the animal as a digital object and an inhabitant
+                of a digital forest. These layers are physically reflected through two front screens and a projected
+                backdrop. The top screen shows more than two hours of trail cam footage with its original audio. The
+                lower screen shows data, such as platform, publication date, time, and user.</p>
+        </div>
+
+        <div class="image-right">
+            <figure scroll="reveal">
+                <video autoplay loop muted playsinline>
+                    <source src="videos/data2.mp4" type="video/mp4">
+                    Il tuo browser non supporta il video.
+                </video>
+            </figure>
+            <div class="text-block">
+                <p>The projection behind the
+                    structure displays a network of hashtags linked to the animals in the footage, with an audio overlay
+                    combining sounds from all videos of the currently featured animal.</p>
+            </div>
+        </div>
+
+        <div class="img-row">
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <video autoplay loop muted playsinline>
+                        <source src="videos/Network 4.mp4" type="video/mp4">
+                        Il tuo browser non supporta il video.
+                    </video>
+                </figure>
+            </div>
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/DATA/12Network.gif" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="text-block">
+            <p>This creates a growing network that mirrors the evolution of a digital forest, blending human
+                perceptions and animal presence over time.</p>
+        </div>
+
+        <div class="img-row">
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/DATA/46.png" alt="">
+                </figure>
+            </div>
+            <div class="img-container slide-in">
+                <figure scroll="reveal">
+                    <img src="images/DATA/41.png" alt="">
+                </figure>
+            </div>
+        </div>
+
+        <div class="text-block-right">
+            <p>The structure was custom-built using supports that allowed for great customization, enabling the
+                installation of two screens on the front and housing the RaspBerry board and speakers at the back.</p>
+        </div>
+
+        <div class="image-double">
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/DATA/18Structure.jpg" alt="">
+                </figure>
+            </div>
+            <div class="img-container">
+                <figure scroll="reveal">
+                    <img src="images/DATA/8.jpg" alt="">
+                </figure>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Sezione Crediti -->
+    <footer class="crediti">
+        <div class="container">
+            <div class="crediti-content">
+                <div class="crediti-column">
+                    <p class="crediti-title">TEAM</p>
+                </div>
+                <div class="crediti-column">
+                    <p>Emanuel Simionato</p>
+                    <p>Francesco Scarfone</p>
+                    <p>Federico Gajo</p>
+                </div>
+                <div class="crediti-column">
+                    <p>Giacomo Garetto</p>
+                    <p>Miguel Amaya </p>
+                </div>
+                <div class="crediti-column">
+                    <p class="crediti-title">CLIENT</p>
+                </div>
+                <div class="crediti-column">
+                    <p>Politecnico di Milano</p>
+                    <p>MEET Digital Culture Center</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        function updateScrollProgress() {
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            let scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrollPercentage = (scrollTop / scrollHeight) * 100;
+
+            // Selezioniamo gli elementi
+            let homeBtn = document.getElementById("homeBtn");
+            let header = document.getElementById("header2");
+
+            // Otteniamo la larghezza e i margini sinistro e destro di homeBtn
+            let homeBtnWidth = homeBtn.offsetWidth;
+            let homeBtnStyles = window.getComputedStyle(homeBtn);
+            let homeBtnMarginLeft = parseFloat(homeBtnStyles.marginLeft);
+            let homeBtnMarginRight = parseFloat(homeBtnStyles.marginRight);
+
+            // Otteniamo il padding-left dell'header
+            let headerStyles = window.getComputedStyle(header);
+            let headerPaddingLeft = parseFloat(headerStyles.paddingLeft);
+
+            let headerWidth = header.offsetWidth;
+
+            // Calcoliamo la larghezza della barra di avanzamento
+            let progressWidth = (homeBtnMarginLeft + homeBtnWidth + homeBtnMarginRight + headerPaddingLeft) +
+                ((headerWidth - (homeBtnWidth + homeBtnMarginLeft + homeBtnMarginRight + headerPaddingLeft)) * (scrollPercentage / 100));
+
+            // Applichiamo la larghezza aggiornata
+            document.getElementById("scroll-progress").style.width = progressWidth + "px";
+        }
+
+        // Assegniamo la funzione all'evento scroll
+        window.addEventListener("scroll", updateScrollProgress);
+
+        // Eseguiamo la funzione una volta al caricamento della pagina
+        document.addEventListener("DOMContentLoaded", updateScrollProgress);
+    </script>
+
+
+    <script>
+        function revealOnScroll() {
+            let elements = document.querySelectorAll('.img-container, .text-block, .text-block-center, figure[scroll="reveal"]');
+            let windowHeight = window.innerHeight;
+            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            let scrollHeight = document.documentElement.scrollHeight - windowHeight;
+
+            elements.forEach(el => {
+                let position = el.getBoundingClientRect().top;
+
+                // Se l'elemento è visibile nel viewport o lo scroll è al 100%, lo mostriamo
+                if (position < windowHeight * 0.85 || scrollTop >= scrollHeight) {
+                    el.classList.add('show');
+                }
+            });
+        }
+
+        document.addEventListener("scroll", revealOnScroll);
+        document.addEventListener("DOMContentLoaded", revealOnScroll);
+    </script>
+
+
+
+</body>
+
+</html>
