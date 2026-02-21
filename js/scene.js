@@ -6,6 +6,15 @@ let galaxyPositionY = 9;
 let isModelActive = false; // Stato iniziale: la sfera è visibile
 let modelVisible = false; // Stato per il click su mobile
 
+// --- NEW VARIABLES FOR ROCKET TRAIL ---
+let rocketMesh = null;
+let previousRocketPosition = new THREE.Vector3();
+let trailMesh;
+const trailParticlesData = [];
+const maxTrailParticles = 200;
+let isRocketEngineActive = false;
+// --------------------------------------
+
 
 let starGroup; // Gruppo per le stelle
 let centralSphere;
@@ -61,6 +70,7 @@ gltfLoader.load('rocket.glb', function (gltf) {
     model3D.traverse(node => {
         if (node.isMesh) {
             console.log("Mesh trovata:", node.name);
+            if (!rocketMesh) rocketMesh = node; // Capture the first mesh found to track position
             if (node.morphTargetInfluences) {
                 console.log("  Ha morphTargetInfluences:", node.morphTargetInfluences.length);
                 console.log("  MorphTargetDictionary:", node.morphTargetDictionary);
@@ -178,6 +188,7 @@ function init() {
     createCentralSphere();
     createRingsAndProjects();
     createParticles(); // Crea le particelle
+    createRocketTrail(); // Initialize the trail
     addLighting();
 
     raycaster = new THREE.Raycaster();
@@ -358,6 +369,142 @@ function createParticles() {
     interactionPlane.rotation.x = -Math.PI / 2; // Ruota per essere piatto come la galassia
     galaxy.add(interactionPlane);
 }
+
+// --- NEW FUNCTIONS FOR ROCKET TRAIL ---
+function createRocketTrail() {
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(maxTrailParticles * 3);
+    const colors = new Float32Array(maxTrailParticles * 3);
+    
+    // Set usage to DynamicDraw for better performance with frequent updates
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3).setUsage(THREE.DynamicDrawUsage));
+    
+    const material = new THREE.PointsMaterial({
+        size: 0.4,
+        vertexColors: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+        opacity: 1.0
+    });
+    
+    trailMesh = new THREE.Points(geometry, material);
+    galaxy.add(trailMesh);
+    
+    // Initialize particle data
+    for (let i = 0; i < maxTrailParticles; i++) {
+        trailParticlesData.push({
+            life: 0,
+            x: 0, y: 0, z: 0,
+            vx: 0, vy: 0, vz: 0
+        });
+    }
+}
+
+function updateRocketTrail() {
+    if (!trailMesh || !model3D || !model3D.visible) {
+        if (trailMesh) trailMesh.visible = false;
+        return;
+    }
+    trailMesh.visible = true;
+
+    // 1. Get current rocket position in World Space
+    const worldPos = new THREE.Vector3();
+    if (rocketMesh) {
+        rocketMesh.getWorldPosition(worldPos);
+    } else {
+        model3D.getWorldPosition(worldPos);
+    }
+    
+    // 2. Convert to Galaxy Local Space (since trail is child of galaxy)
+    const localPos = galaxy.worldToLocal(worldPos.clone());
+    
+    // 3. Calculate velocity based on movement (for particle inertia)
+    const velocity = localPos.clone().sub(previousRocketPosition);
+    
+    // Prevent huge velocity spikes when model appears/teleports
+    if (velocity.length() > 5) velocity.set(0,0,0);
+
+    // 4. Emit new particles
+    let emitCount = 2; // Particles per frame
+    if (isRocketEngineActive) {
+        for (let i = 0; i < maxTrailParticles; i++) {
+            const p = trailParticlesData[i];
+            if (p.life <= 0 && emitCount > 0) {
+                p.life = 1.5; // Start life
+                // Spawn at rocket position with slight random offset
+                p.x = localPos.x + (Math.random() - 0.5) * 0.5;
+                p.y = localPos.y + (Math.random() - 0.5) * 0.5;
+                p.z = localPos.z + (Math.random() - 0.5) * 0.5;
+                
+                // Velocity: slightly opposite to movement + random spread
+                if (velocity.lengthSq() > 0.000001) {
+                     const dir = velocity.clone().normalize().negate();
+                     p.vx = dir.x * 0.3 + (Math.random() - 0.5) * 0.2;
+                     p.vy = dir.y * 0.3 + (Math.random() - 0.5) * 0.2;
+                     p.vz = dir.z * 0.3 + (Math.random() - 0.5) * 0.2;
+                } else {
+                     p.vx = (Math.random() - 0.5) * 0.1;
+                     p.vy = (Math.random() - 0.5) * 0.1;
+                     p.vz = (Math.random() - 0.5) * 0.1;
+                }
+                emitCount--;
+            }
+        }
+    }
+    
+    // 5. Update existing particles
+    const positions = trailMesh.geometry.attributes.position.array;
+    const colors = trailMesh.geometry.attributes.color.array;
+    
+    for (let i = 0; i < maxTrailParticles; i++) {
+        const p = trailParticlesData[i];
+        if (p.life > 0) {
+            p.life -= 0.023; // Decay rate
+            p.x += p.vx;
+            p.y += p.vy;
+            p.z += p.vz;
+            
+            positions[i*3] = p.x;
+            positions[i*3+1] = p.y;
+            positions[i*3+2] = p.z;
+            
+            // Color fade: White -> Blue (#2081C3) -> Black
+            if (p.life > 0.5) {
+                const t = (p.life - 0.5) * 2;
+                colors[i*3] = 0.125 + (0.875 * t);   // R
+                colors[i*3+1] = 0.506 + (0.494 * t); // G
+                colors[i*3+2] = 0.765 + (0.235 * t); // B
+            } else {
+                const t = p.life * 2;
+                colors[i*3] = 0.125 * t;   // R
+                colors[i*3+1] = 0.506 * t; // G
+                colors[i*3+2] = 0.765 * t; // B
+            }
+        } else {
+            // Hide dead particles
+            positions[i*3] = 99999; 
+            p.life = 0;
+        }
+    }
+    
+    trailMesh.geometry.attributes.position.needsUpdate = true;
+    trailMesh.geometry.attributes.color.needsUpdate = true;
+    
+    previousRocketPosition.copy(localPos);
+}
+
+function resetRocketTrail() {
+    if (!trailMesh) return;
+    for (let i = 0; i < maxTrailParticles; i++) {
+        trailParticlesData[i].life = 0;
+        const positions = trailMesh.geometry.attributes.position.array;
+        positions[i*3] = 99999;
+    }
+    trailMesh.geometry.attributes.position.needsUpdate = true;
+}
+// --------------------------------------
 
 // Funzione aggiornata per gestire l'hover
 
@@ -827,6 +974,8 @@ function showModel(callback) {
     animateScale3D(centralSphere, 0, 300, () => {
         centralSphere.visible = false;
         model3D.visible = true;
+        resetRocketTrail(); // Reset trail when model appears
+        isRocketEngineActive = true;
 
         // Avvia entrambe le animazioni
         if (modelAnimation0 && modelAnimation2) {
@@ -846,6 +995,7 @@ function showModel(callback) {
 
 // Modifica la funzione showSphere
 function showSphere(callback) {
+    isRocketEngineActive = false;
     // Ferma l'animazione quando il modello scompare
     if (modelAnimation) {
         modelAnimation.stop();
@@ -979,6 +1129,7 @@ function animate() {
     TWEEN.update();
     updateProjects();
     updateParticles(); // Aggiorna le particelle
+    updateRocketTrail(); // Update the trail every frame
     galaxy.position.y = galaxyPositionY;
 
     // Controllo del raycaster per l'hover (solo desktop)
