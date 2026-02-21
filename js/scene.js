@@ -1178,6 +1178,19 @@ function animate() {
             const projectIntersects = raycaster.intersectObjects(projectsMeshes);
             if (projectIntersects.length > 0) {
                 const intersected = projectIntersects[0].object;
+
+                // Effetto Tilt 3D (Parallax)
+                const localPoint = intersected.worldToLocal(projectIntersects[0].point.clone());
+                const tiltIntensity = 0.15;
+                intersected.rotateX(localPoint.y * tiltIntensity);
+                intersected.rotateY(-localPoint.x * tiltIntensity);
+
+                const index = projectsMeshes.indexOf(intersected);
+                if (index !== -1 && previewImages[index]) {
+                    previewImages[index].rotateX(localPoint.y * tiltIntensity);
+                    previewImages[index].rotateY(-localPoint.x * tiltIntensity);
+                }
+
                 if (INTERSECTED !== intersected) {
                     if (INTERSECTED) {
                         labels[projectsMeshes.indexOf(INTERSECTED)].visible = true;
