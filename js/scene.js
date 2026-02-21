@@ -100,7 +100,7 @@ gltfLoader.load('rocket.glb', function (gltf) {
 // Configurazione modelli personalizzati per i progetti (Indice Progetto: { percorso, scala })
 const customShapesConfig = {
     0: { path: '3DCenter/proj1.glb', scale: 65 }, // Progetto 1 (indice 0)
-    1: { path: '3DCenter/proj2.glb', scale: 60 }, // Progetto 2
+    1: { path: '3DCenter/proj2.glb', scale: 50 }, // Progetto 2
     2: { path: '3DCenter/proj3.glb', scale: 50 }, // Progetto 3
     3: { path: '3DCenter/proj4.glb', scale: 50 }, // Progetto
     4: { path: '3DCenter/proj5.glb', scale: 40 }, // Progetto
