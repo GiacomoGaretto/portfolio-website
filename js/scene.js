@@ -1177,6 +1177,8 @@ function animate() {
             // Logica per i progetti (solo su desktop)
             const projectIntersects = raycaster.intersectObjects(projectsMeshes);
             if (projectIntersects.length > 0) {
+                document.body.classList.add('cursor-hovered');
+                
                 const intersected = projectIntersects[0].object;
 
                 // Effetto Tilt 3D (Parallax)
@@ -1217,7 +1219,9 @@ function animate() {
                     animateRingsOpacity(0.2, 500); // Riduci opacità anelli
                     animateParticlesMaterial(1, 0.2, 500);
                 }
-            } else if (INTERSECTED) {
+            } else {
+                document.body.classList.remove('cursor-hovered');
+                if (INTERSECTED) {
                 labels[projectsMeshes.indexOf(INTERSECTED)].visible = true;
                 animateOpacity(previewImages[projectsMeshes.indexOf(INTERSECTED)], 0, 150);
                 animateScale(INTERSECTED, 1, 150);
@@ -1228,6 +1232,7 @@ function animate() {
                 resetParticleTargets();
                 animateRingsOpacity(1, 500); // Ripristina opacità anelli
                 animateParticlesMaterial(particlesMesh.material.userData.originalOpacity, particlesMesh.material.userData.originalSize, 500);
+                }
             }
         }
     }
@@ -1238,4 +1243,6 @@ function animate() {
 
 
 
-init();
+document.fonts.ready.then(() => {
+    init();
+});

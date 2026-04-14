@@ -118,3 +118,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 });
+
+// Creazione e gestione del cursore personalizzato
+const customCursor = document.createElement('div');
+customCursor.id = 'custom-cursor';
+document.body.appendChild(customCursor);
+
+document.addEventListener('mousemove', (e) => {
+    customCursor.style.left = e.clientX + 'px';
+    customCursor.style.top = e.clientY + 'px';
+});
