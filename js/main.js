@@ -71,6 +71,9 @@ function scrambleAll(container, stagger = 120) {
 // Quando clicco su ABOUT, attivo la classe
 document.getElementById('aboutBtn').addEventListener('click', function () {
     document.body.classList.add('about-active');
+    // Il bottone sparisce con l'header: senza mouseleave il cursore
+    // resterebbe agganciato a un elemento invisibile
+    releaseDomSnap();
     // Avvia le animazioni scramble dopo l'espansione del cerchio bianco
     setTimeout(() => scrambleAll(document.getElementById('aboutText'), 150), 350);
 });
@@ -88,6 +91,7 @@ document.getElementById('aboutBtn').addEventListener('click', function () {
 // Aggiunge l'evento alla X per chiudere l'about
 document.getElementById('closeAboutBtn').addEventListener('click', function () {
     document.body.classList.remove('about-active'); // Disattiva la modalità About
+    releaseDomSnap(); // La X si nasconde: rilascia l'aggancio del cursore
 });
 
 // Seleziona gli elementi della scheda informativa
@@ -263,13 +267,13 @@ document.addEventListener('mousemove', (e) => {
     customCursor.style.top = e.clientY + 'px';
 });
 
-function snapCursorTo(centerX, centerY, size) {
+function snapCursorTo(centerX, centerY, width, height) {
     cursorSnapped = true;
     customCursor.classList.add('snapped');
     customCursor.style.left = centerX + 'px';
     customCursor.style.top = centerY + 'px';
-    customCursor.style.width = size + 'px';
-    customCursor.style.height = size + 'px';
+    customCursor.style.width = width + 'px';
+    customCursor.style.height = (height !== undefined ? height : width) + 'px';
 }
 
 function releaseCursor(mouseX, mouseY) {
@@ -283,3 +287,38 @@ function releaseCursor(mouseX, mouseY) {
         customCursor.style.top = mouseY + 'px';
     }
 }
+
+// --- Aggancio magnetico agli elementi di interfaccia (DOM) ---
+// Il loop 3D rilascia il cursore a ogni frame in cui non c'è un pianeta
+// sotto il mouse: questo flag gli dice di non interferire.
+let domSnapActive = false;
+
+function releaseDomSnap(mouseX, mouseY) {
+    if (!domSnapActive) return;
+    domSnapActive = false;
+    document.body.classList.remove('cursor-hovered');
+    releaseCursor(mouseX, mouseY);
+}
+
+function attachCursorSnap(el, padding) {
+    el.addEventListener('mouseenter', () => {
+        const rect = el.getBoundingClientRect();
+        domSnapActive = true;
+        document.body.classList.add('cursor-hovered');
+        snapCursorTo(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+            rect.width + padding * 2,
+            rect.height + padding * 2
+        );
+    });
+    el.addEventListener('mouseleave', (e) => {
+        releaseDomSnap(e.clientX, e.clientY);
+    });
+}
+
+// UI della home, selettori dell'About e X di chiusura
+['homeBtn', 'aboutBtn', 'toggleRotation', 'closeAboutBtn'].forEach(id => {
+    attachCursorSnap(document.getElementById(id), 10);
+});
+document.querySelectorAll('.route-btn').forEach(btn => attachCursorSnap(btn, 8));

@@ -283,49 +283,6 @@ body::-webkit-scrollbar {
     background: rgba(0, 0, 0, 0.25);
 }
 
-/* Il piede non ha filetto: si stacca dal blocco centrale con lo spazio */
-.about-metarow-bottom {
-    margin-top: 34px;
-}
-
-/* Email: click per copiare, con sottolineatura animata */
-.copy-mail {
-    position: relative;
-    background: none;
-    border: 0;
-    padding: 0;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.5);
-    cursor: pointer;
-    transition: color 0.2s ease-out;
-}
-
-.copy-mail::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -5px;
-    height: 1px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.copy-mail:hover,
-.copy-mail.copied {
-    color: var(--accent);
-}
-
-.copy-mail:hover::after,
-.copy-mail.copied::after {
-    transform: scaleX(1);
-}
-
 /* Titolo grande + intro su due colonne strette, alte quanto il titolo */
 .about-head {
     display: grid;
@@ -352,14 +309,14 @@ body::-webkit-scrollbar {
     align-content: end;
 }
 
+/* Bandiera a destra: allineate a sinistra, margine destro irregolare */
 .about-intro p {
     margin: 0;
     font-size: 13.5px;
     font-weight: 400;
     line-height: 1.5;
     color: rgba(0, 0, 0, 0.82);
-    text-align: justify;
-    hyphens: auto;
+    text-align: left;
 }
 
 /* Corpo: menù a sinistra, elenco al centro.
@@ -1366,17 +1323,6 @@ figure[scroll="reveal"].show {
         border-top: 0;
     }
 
-    /* Il piede si impila: niente filetto elastico tra le due voci */
-    .about-metarow-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .about-metarow-bottom .about-rule {
-        display: none;
-    }
-
     .route-btn {
         width: auto;
         border-bottom: 0;
@@ -1549,10 +1495,6 @@ figure[scroll="reveal"].show {
         font-size: clamp(28px, 3.4vw, 44px);
     }
 
-    .about-metarow-bottom {
-        margin-top: 26px;
-    }
-
     /* Menù e voci mantengono lo stesso passo verticale */
     .route-item,
     .route-btn {
@@ -1666,21 +1608,21 @@ body.cursor-hovered .cursor-corner {
 }
 
 body.cursor-hovered .cursor-corner.tl {
-    border-top-width: 3px;
-    border-left-width: 3px;
+    border-top-width: 2.25px;
+    border-left-width: 2.25px;
 }
 
 body.cursor-hovered .cursor-corner.tr {
-    border-top-width: 3px;
-    border-right-width: 3px;
+    border-top-width: 2.25px;
+    border-right-width: 2.25px;
 }
 
 body.cursor-hovered .cursor-corner.bl {
-    border-bottom-width: 3px;
-    border-left-width: 3px;
+    border-bottom-width: 2.25px;
+    border-left-width: 2.25px;
 }
 
 body.cursor-hovered .cursor-corner.br {
-    border-bottom-width: 3px;
-    border-right-width: 3px;
+    border-bottom-width: 2.25px;
+    border-right-width: 2.25px;
 }

@@ -1000,14 +1000,19 @@ let shapeMaxRadiusXZ = 1;    // saltino da un punto all'altro a ogni frame
 let shapeMaxY = 1;
 let shapeAngle = 0;
 
-const SHAPE_DISTANCE = 32;   // distanza dalla camera: davanti alla galassia
-const SHAPE_MARGIN = 0.86;   // margine interno rispetto ai bordi dell'area
-const SHAPE_SPIN = 0.0022;   // ~45 secondi per giro completo
+const SHAPE_DISTANCE = 32;    // distanza dalla camera: davanti alla galassia
+const SHAPE_MARGIN = 0.86;    // margine interno rispetto ai bordi dell'area
+const SHAPE_SPIN = 0.00187;   // ~56 secondi per giro completo
 
 // Dimensione delle particelle mentre compongono il modello nella scheda,
 // con override per i modelli che risultano troppo densi
-const SHAPE_PARTICLE_SIZE_DEFAULT = 0.13;
-const SHAPE_PARTICLE_SIZE = { 2: 0.078 }; // Proj 3 (VOTE): 40% più piccole
+const SHAPE_PARTICLE_SIZE_DEFAULT = 0.104;
+const SHAPE_PARTICLE_SIZE = { 2: 0.062 }; // Proj 3 (VOTE): 40% più piccole
+
+// Scala visiva di ciascun modello dentro l'area della scheda
+// (moltiplica la scala di contenimento calcolata automaticamente)
+const SHAPE_SCALE = { 0: 0.8, 1: 0.5, 2: 0.9, 3: 0.8, 4: 0.7, 5: 1 };
+let shapeScaleMul = 1;
 
 const shapeMatrix = new THREE.Matrix4();
 const shapeTmpMatrix = new THREE.Matrix4();
@@ -1020,6 +1025,7 @@ function prepareShape(shapeIndex) {
     const count = particleTargetPositions.length / 3;
     shapeBase = new Float32Array(count * 3);
     shapeAngle = 0;
+    shapeScaleMul = SHAPE_SCALE[shapeIndex] !== undefined ? SHAPE_SCALE[shapeIndex] : 1;
 
     let maxRadius = 0;
     let maxY = 0;
@@ -1065,7 +1071,7 @@ function updateShapeTargets() {
     // sono più vicini di SHAPE_DISTANCE e quindi proiettano più grandi.
     // Senza questo fattore la forma sborda dai bordi dell'area.
     const nearestOffset = flatScale * shapeMaxRadiusXZ;
-    const scale = flatScale * (SHAPE_DISTANCE - nearestOffset) / SHAPE_DISTANCE;
+    const scale = flatScale * (SHAPE_DISTANCE - nearestOffset) / SHAPE_DISTANCE * shapeScaleMul;
 
     // Le particelle vivono nello spazio di starGroup: compongo
     // inversa(starGroup) · traslazione · rotazione · scala
@@ -1481,11 +1487,15 @@ function animate() {
                     focusOnProject(INTERSECTED, 400);
                 }
             } else {
-                document.body.classList.remove('cursor-hovered');
-                releaseCursor(
-                    (mouse.x * 0.5 + 0.5) * window.innerWidth,
-                    (-mouse.y * 0.5 + 0.5) * window.innerHeight
-                );
+                // Se il cursore è agganciato a un elemento di interfaccia
+                // (header, PAUSE), l'aggancio è gestito dai suoi eventi
+                if (!domSnapActive) {
+                    document.body.classList.remove('cursor-hovered');
+                    releaseCursor(
+                        (mouse.x * 0.5 + 0.5) * window.innerWidth,
+                        (-mouse.y * 0.5 + 0.5) * window.innerHeight
+                    );
+                }
                 if (INTERSECTED) {
                 animateOpacity(previewImages[projectsMeshes.indexOf(INTERSECTED)], 0, 150);
                 animateScale(INTERSECTED, 1, 150);
