@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -9,11 +9,11 @@
     <link rel="canonical" href="https://giacomogaretto.com/">
     <link rel="stylesheet" href="style.css">
     <link rel="preload"
-        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
         as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
         <link
-            href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
             rel="stylesheet">
     </noscript>
     <title>Giacomo Garetto</title>
@@ -23,8 +23,10 @@
     <div id="header">
         <a id="homeBtn" href="index.html">GIACOMO GARETTO</a>
         <button id="aboutBtn">ABOUT</button>
-        <button id="closeAboutBtn">✕</button>
     </div>
+
+    <!-- Chiusura dell'About: elemento singolo, indipendente dall'header -->
+    <button id="closeAboutBtn">✕</button>
 
     <div id="toggleRotation">
         <p>PAUSE</p>
@@ -32,44 +34,92 @@
 
     <div id="scene"></div>
 
-    <!-- Scheda informativa -->
+    <!-- Etichette dei pianeti: i nomi si fondono in difference sul bianco,
+         i numeri restano blu su un livello separato non fuso -->
+    <div id="labels"></div>
+    <div id="labelNums"></div>
+
+    <!-- Scheda progetto: scheda tecnica su card invisibile -->
     <div id="infoCard">
-        <img id="projectPreview" src="" alt="Anteprima del progetto" style="display: none; max-width: 100%">
-        <h2 id="projectTitle">Titolo Progetto</h2>
-        <p id="projectDescription">Descrizione del progetto.</p>
-        <div id="infoBottom">
-            <p id="coordinates">Milano</p>
-            <p id="projectDate">22-12-2022</p>
+        <span id="projectGhostNum" aria-hidden="true">01</span>
+
+        <div class="info-row info-top">
+            <span id="projectIndex">FILE 01 / 06</span>
+            <span id="projectSeries">SERIES 01 / 06</span>
+        </div>
+
+        <div class="info-main">
+            <!-- Area che ospita il modello 3D a particelle: nessuna grafica
+                 propria, definisce solo i limiti entro cui il modello ruota -->
+            <div id="projectStage" aria-hidden="true"></div>
+            <div class="info-title-row">
+                <h2 id="projectTitle">Titolo Progetto</h2>
+                <span id="projectCode">GG&#8211;01<br>2022</span>
+            </div>
+        </div>
+
+        <div class="info-specs">
+            <div class="info-field info-field-wide">
+                <span class="field-label">ABSTRACT</span>
+                <p id="projectDescription">Descrizione del progetto.</p>
+            </div>
+            <div class="info-field">
+                <span class="field-label">DATE</span>
+                <p id="projectDate">22-12-2022</p>
+            </div>
+            <div class="info-field">
+                <span class="field-label">COORDINATES</span>
+                <p id="coordinates">Milano</p>
+            </div>
+        </div>
+
+        <div class="info-row" id="infoBottom">
+            <span id="infoCardHint">&#8594;&nbsp;&nbsp;CLICK TO OPEN PROJECT</span>
         </div>
     </div>
 
     <div id="aboutOverlay"></div>
 
     <div id="aboutText">
-        <h2 class="aboutTitle">About me</h2>
-        <p id="aboutMainText">Hi, I'm Giacomo, a designer from Turin with a passion at the intersection of visual design
-            and technology. I am a curious person who loves getting hands-on to explore how things work from
-            the inside out. My focus spans across digital and interaction design, 3D, and motion. Recently, I have been
-            experimenting with AI locally through ComfyUI. I view AI not just as a generator, but as an amazing
-            instrument to accelerate the prototyping of platforms and experiences.</p>
+        <div class="about-metarow">
+            <span class="scramble" data-text="ABOUT">ABOUT</span>
+            <span class="about-rule"></span>
+            <span class="scramble" data-text="GG &#8212; PORTFOLIO 2026">GG &#8212; PORTFOLIO 2026</span>
+        </div>
 
-        <div id="aboutColumns">
-            <div class="aboutColumn">
-                <h2 class="aboutTitle">Education</h2>
-                <ul>
-                    <li>Finishing the Master Degree Thesis in Communication Design at Politecnico di Milano</li>
-                    <li>Bachelor's Degree in Communication Design at Politecnico di Torino</li>
-                    <li>High School Diploma in Scientific Studies</li>
-                </ul>
+        <header class="about-head">
+            <h2 class="about-heading">Take it apart,<br>then design it.</h2>
+            <div class="about-intro">
+                <p>Giacomo Garetto, designer from Turin. I work where visual design meets the thing that actually
+                    runs &#8212; interaction, 3D, motion.</p>
+                <p>I open things up before I draw them. Understanding the mechanism is what tells me what the surface
+                    should be.</p>
             </div>
-            <div class="aboutColumn">
-                <h2 class="aboutTitle">Work Experience</h2>
-                <ul>
-                    <li>Internship at ARCA Studios – 2 months</li>
-                    <li>Freelance Junior Graphic Designer at Noodles Communication Srl – 2 months</li>
-                    <li>Internship at Noodles Communication Srl – 2 months</li>
-                </ul>
-            </div>
+        </header>
+
+        <div class="about-body">
+            <p class="route-caption" id="routeCaption"></p>
+
+            <nav id="routeSelector">
+                <button class="route-btn active" data-route="bio">
+                    <span class="route-num">01</span><span class="route-name">Bio</span>
+                </button>
+                <button class="route-btn" data-route="education">
+                    <span class="route-num">02</span><span class="route-name">Education</span>
+                </button>
+                <button class="route-btn" data-route="experience">
+                    <span class="route-num">03</span><span class="route-name">Experience</span>
+                </button>
+            </nav>
+
+            <div id="routeContent"></div>
+        </div>
+
+        <div class="about-metarow about-metarow-bottom">
+            <span class="scramble" data-text="BASED IN TURIN / MILAN">BASED IN TURIN / MILAN</span>
+            <span class="about-rule"></span>
+            <button type="button" id="copyMail" class="copy-mail"
+                data-mail="giacomo.garetto@gmail.com">GIACOMO.GARETTO@GMAIL.COM</button>
         </div>
     </div>
 
@@ -79,6 +129,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script src="js/main.js"></script>
+    <script src="js/about.js"></script>
     <script src="js/scene.js"></script>
 
 </body>

@@ -1,6 +1,78 @@
+// --- Utility: animazione "scramble" stile sci-fi ---
+// Rivela il testo lettera per lettera, con caratteri casuali prima dell'assestamento.
+const SCRAMBLE_CHARS = '!<>-_\\/[]{}=+*^?#_0123456789';
+
+// Disegna lo stato intermedio: lettere assestate, poi una scia di caratteri
+// casuali, poi il nulla. Condiviso da scrambleIn e scrambleOut così che
+// l'uscita sia esattamente l'inverso dell'entrata.
+function scrambleFrame(text, settled, trail) {
+    let out = '';
+    for (let i = 0; i < text.length; i++) {
+        if (i < settled) {
+            out += text[i];
+        } else if (i < settled + trail) {
+            out += text[i] === ' ' ? ' ' : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+        }
+    }
+    return out;
+}
+
+function scrambleIn(el, text, options = {}) {
+    const charDelay = options.charDelay || 28;       // ms per frame
+    const settleEvery = options.settleEvery || 1;    // lettere assestate per frame
+    const trail = options.trail || 5;                // lettere "in cottura" dopo quelle assestate
+
+    if (el._scrambleTimer) clearInterval(el._scrambleTimer);
+
+    let settled = 0;
+    el._scrambleTimer = setInterval(() => {
+        settled += settleEvery;
+        el.textContent = scrambleFrame(text, settled, trail);
+        if (settled >= text.length) {
+            clearInterval(el._scrambleTimer);
+            el._scrambleTimer = null;
+            el.textContent = text;
+        }
+    }, charDelay);
+}
+
+// Animazione inversa: il testo si dissolve da destra verso sinistra
+function scrambleOut(el, text, options = {}, onComplete) {
+    const charDelay = options.charDelay || 28;
+    const settleEvery = options.settleEvery || 1;
+    const trail = options.trail || 5;
+
+    if (el._scrambleTimer) clearInterval(el._scrambleTimer);
+
+    let settled = text.length;
+    el._scrambleTimer = setInterval(() => {
+        settled -= settleEvery;
+        el.textContent = scrambleFrame(text, settled, trail);
+        if (settled <= -trail) {
+            clearInterval(el._scrambleTimer);
+            el._scrambleTimer = null;
+            el.textContent = '';
+            if (onComplete) onComplete();
+        }
+    }, charDelay);
+}
+
+// Anima tutti gli elementi .scramble di un contenitore (con stagger)
+function scrambleAll(container, stagger = 120) {
+    const els = container.querySelectorAll('.scramble');
+    els.forEach((el, i) => {
+        const text = el.dataset.text || el.textContent.trim();
+        el.dataset.text = text;
+        el.textContent = '';
+        setTimeout(() => scrambleIn(el, text), i * stagger);
+    });
+}
+
 // Quando clicco su ABOUT, attivo la classe
 document.getElementById('aboutBtn').addEventListener('click', function () {
     document.body.classList.add('about-active');
+    // Avvia le animazioni scramble dopo l'espansione del cerchio bianco
+    setTimeout(() => scrambleAll(document.getElementById('aboutText'), 150), 350);
 });
 
 // Quando clicco su GIACOMO GARETTO (homeBtn), torno allo stato iniziale
@@ -23,7 +95,9 @@ const infoCard = document.getElementById('infoCard');
 const projectTitle = document.getElementById('projectTitle');
 const projectDescription = document.getElementById('projectDescription');
 const projectDate = document.getElementById('projectDate')
-const projectPreview = document.getElementById('projectPreview');
+const projectStage = document.getElementById('projectStage');
+const projectIndex = document.getElementById('projectIndex');
+const projectCoordinates = document.getElementById('coordinates');
 const aboutElement = document.getElementById('aboutText');
 
 // Seleziona il bottone
@@ -49,21 +123,66 @@ toggleRotationButton.addEventListener('click', () => {
     }
 });
 
-function showInfoCard(name, description, anteImg, info) {
-    projectTitle.textContent = INTERSECTED.userData.projectName;;
-    projectDescription.textContent = description;
-    projectPreview.src = anteImg;
-    projectDate.textContent = info;
-    projectPreview.style.display = 'block';
+// Testi che si compongono in sequenza, sincronizzati con le animazioni CSS
+// dei rispettivi blocchi (vedi .showCard nel foglio di stile)
+const infoCardSequence = [
+    { id: 'projectIndex', delay: 80, options: { charDelay: 12, settleEvery: 2, trail: 5 } },
+    { id: 'projectSeries', delay: 140, options: { charDelay: 12, settleEvery: 2, trail: 5 } },
+    { id: 'projectTitle', delay: 330, options: { charDelay: 20, settleEvery: 2, trail: 4 } },
+    { id: 'projectCode', delay: 400, options: { charDelay: 12, settleEvery: 2, trail: 5 } },
+    { id: 'projectDate', delay: 580, options: { charDelay: 10, settleEvery: 3, trail: 6 } },
+    { id: 'coordinates', delay: 640, options: { charDelay: 10, settleEvery: 3, trail: 6 } },
+    { id: 'infoCardHint', delay: 740, options: { charDelay: 14, settleEvery: 1, trail: 4 } }
+];
 
-    infoCard.classList.remove('hideCard', 'expandCard'); // Rimuovi eventuali classi precedenti
-    infoCard.classList.add('showCard'); // Aggiungi la classe di entrata
-    infoCard.style.display = 'block';
+let infoCardTimers = [];
+
+function runInfoCardSequence(values) {
+    infoCardTimers.forEach(clearTimeout);
+    infoCardTimers = [];
+
+    infoCardSequence.forEach(step => {
+        const el = document.getElementById(step.id);
+        const text = values[step.id];
+        el.textContent = '';
+        infoCardTimers.push(setTimeout(() => scrambleIn(el, text, step.options), step.delay));
+    });
+}
+
+function showInfoCard(userData, index, total) {
+    const num = String(index + 1).padStart(2, '0');
+    const year = (userData.info.match(/\d{4}/) || [''])[0];
+
+    projectDescription.textContent = userData.description;
+    document.getElementById('projectGhostNum').textContent = num;
+
+    // Rimuovere e riapplicare showCard fa ripartire la sequenza anche quando
+    // si passa direttamente da un progetto all'altro
+    infoCard.classList.remove('hideCard', 'expandCard', 'showCard');
+    void infoCard.offsetWidth;
+    infoCard.classList.add('showCard');
+    infoCard.style.display = 'flex';
+    // Toglie di mezzo la UI di navigazione mentre si legge il progetto
+    document.body.classList.add('project-focus');
+
+    runInfoCardSequence({
+        projectIndex: 'GG — PROJECT INDEX',
+        projectSeries: 'FILE ' + num + ' / ' + String(total).padStart(2, '0'),
+        projectTitle: userData.projectName,
+        // Il ritorno a capo è reso da white-space: pre-line
+        projectCode: 'K—' + num + '\n' + year,
+        projectDate: userData.info,
+        coordinates: userData.coords || '',
+        infoCardHint: '→  CLICK TO OPEN PROJECT'
+    });
 }
 
 function hideInfoCard() {
+    infoCardTimers.forEach(clearTimeout);
+    infoCardTimers = [];
     infoCard.classList.remove('showCard', 'expandCard');
     infoCard.classList.add('hideCard');
+    document.body.classList.remove('project-focus');
 
     setTimeout(() => {
         infoCard.style.display = 'none';
@@ -119,12 +238,48 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
 });
 
-// Creazione e gestione del cursore personalizzato
+// Cursore personalizzato: reticolo di puntamento a quattro angoli.
+// Visibile solo in homepage su desktop (vedi media query nel CSS).
 const customCursor = document.createElement('div');
 customCursor.id = 'custom-cursor';
+customCursor.innerHTML =
+    '<span class="cursor-corner tl"></span>' +
+    '<span class="cursor-corner tr"></span>' +
+    '<span class="cursor-corner bl"></span>' +
+    '<span class="cursor-corner br"></span>';
 document.body.appendChild(customCursor);
 
+// Fuori schermo finché il mouse non si muove
+customCursor.style.left = '-100px';
+customCursor.style.top = '-100px';
+
+// Quando è agganciato a un elemento il cursore smette di seguire il mouse:
+// i suoi crocini vanno a incorniciare l'elemento
+let cursorSnapped = false;
+
 document.addEventListener('mousemove', (e) => {
+    if (cursorSnapped) return;
     customCursor.style.left = e.clientX + 'px';
     customCursor.style.top = e.clientY + 'px';
 });
+
+function snapCursorTo(centerX, centerY, size) {
+    cursorSnapped = true;
+    customCursor.classList.add('snapped');
+    customCursor.style.left = centerX + 'px';
+    customCursor.style.top = centerY + 'px';
+    customCursor.style.width = size + 'px';
+    customCursor.style.height = size + 'px';
+}
+
+function releaseCursor(mouseX, mouseY) {
+    if (!cursorSnapped) return;
+    cursorSnapped = false;
+    customCursor.classList.remove('snapped');
+    customCursor.style.width = '';
+    customCursor.style.height = '';
+    if (mouseX !== undefined) {
+        customCursor.style.left = mouseX + 'px';
+        customCursor.style.top = mouseY + 'px';
+    }
+}

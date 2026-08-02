@@ -1,5 +1,16 @@
 let scene, camera, renderer, galaxy, raycaster, mouse;
-let rotatingSpeed = window.innerWidth <= 768 ? 0.00002 : 0.0002;
+
+// Velocità di rotazione idle della galassia (più pronunciata).
+// La velocità netta dei progetti lungo il proprio anello resta invariata:
+// updateProjects compensa sottraendo la rotazione della galassia.
+function getIdleSpeed() {
+    return window.innerWidth <= 768 ? 0.0001 : 0.0006;
+}
+// Velocità angolare netta (galassia + orbita propria) percepita dai progetti
+function getNetProjectSpeed() {
+    return window.innerWidth <= 768 ? 0.00102 : 0.0012;
+}
+let rotatingSpeed = getIdleSpeed();
 let rotating = true;
 let projectsMoving = true;
 let galaxyPositionY = 9;
@@ -25,12 +36,12 @@ const targetCentralScale = 4; // Imposta la scala desiderata per l'hover
 
 // Aggiungi le descrizioni ai dati dei progetti
 const projectsData = [
-    { name: "Proj 1", projectName: "Digital Forest", info: "22/11/2025", hoverImage: "images/previews/data_preview.jpg", anteImg: "images/ante/data_ante.jpg", description: "The project analyzes 273 trail cam videos from Italian social platforms (2021-2024), exploring hashtags as tools of human categorization. The installation arranges videos chronologically with their hashtags, forming a growing network that reflects the evolving interplay between human perception and animal presence in a digital forest.", url: "project1.html" },
-    { name: "Proj 2", projectName: "Falken's Room", info: "12/09/2022", hoverImage: "images/previews/falkens_preview.jpg", anteImg: "images/ante/falk_ante.jpg", description: "This thesis analyzes interactive installations through a practical case study, exploring their development, communication potential, and challenges. The study focuses on a 3D interactive installation inspired by 80s arcade games, designed and showcased at the Graphic Days 2022 festival.", url: "project2.html" },
-    { name: "Proj 3", projectName: "VOTE", info: "25/06/2024", hoverImage: "images/previews/vote_preview.jpg", anteImg: "images/ante/vote_ante.jpg", description: "Vote is an interactive experience designed to actively engage students in a reflection on the value of voting and democratic representation. Developed within the Interaction Design Studio course at the Politecnico di Milano, the project addresses the growing disinterest in electoral participation, especially among young people.", url: "project3.html" },
-    { name: "Proj 4", projectName: "Chronicles of Ink", info: "01/07/2024", hoverImage: "images/previews/chronicles_preview.jpg", anteImg: "images/ante/chron_ante.jpg", description: "The Chronicles of Ink is an Interactive Digital Narrative experience that explores social judgement and self-exploration through the metaphorical fantasy world of Talea. The project aims to raise awareness of the social double standard towards tattoos by examining how the perception of these art forms varies culturally and socially.", url: "project4.html" },
-    { name: "Proj 5", projectName: "Beyondwaste", info: "27/02/2025", hoverImage: "images/previews/beyond_preview.jpg", anteImg: "images/ante/beyond_ante.jpg", description: "Beyondwaste is a presentation event designed by LATTER Studio for the innovative E-Trash bin concept. I contributed to the project by creating high-quality 3D visuals for the event's launch campaign. ", url: "project5.html" },
-    { name: "Proj 6", projectName: "Salotto di Milano", info: "15/01/2024", hoverImage: "images/previews/salotto_preview.jpg", anteImg: "images/ante/salotto_ante.jpg", description: "The Salotto di Milano stands as an intersection of art, technology and culture. It is a journey that redefines how we all interact in the digital age, expanding the heart of Milano in the digital space.", url: "project6.html" },
+    { name: "Proj 1", projectName: "Digital Forest", info: "22/11/2025", coords: "RA 04h21m · DEC +19°32′", hoverImage: "images/previews/data_preview.jpg", anteImg: "images/ante/data_ante.jpg", description: "The project analyzes 273 trail cam videos from Italian social platforms (2021-2024), exploring hashtags as tools of human categorization. The installation arranges videos chronologically with their hashtags, forming a growing network that reflects the evolving interplay between human perception and animal presence in a digital forest.", url: "project1.html" },
+    { name: "Proj 2", projectName: "Falken's Room", info: "12/09/2022", coords: "RA 17h58m · DEC −22°41′", hoverImage: "images/previews/falkens_preview.jpg", anteImg: "images/ante/falk_ante.jpg", description: "This thesis analyzes interactive installations through a practical case study, exploring their development, communication potential, and challenges. The study focuses on a 3D interactive installation inspired by 80s arcade games, designed and showcased at the Graphic Days 2022 festival.", url: "project2.html" },
+    { name: "Proj 3", projectName: "VOTE", info: "25/06/2024", coords: "RA 09h12m · DEC +45°08′", hoverImage: "images/previews/vote_preview.jpg", anteImg: "images/ante/vote_ante.jpg", description: "Vote is an interactive experience designed to actively engage students in a reflection on the value of voting and democratic representation. Developed within the Interaction Design Studio course at the Politecnico di Milano, the project addresses the growing disinterest in electoral participation, especially among young people.", url: "project3.html" },
+    { name: "Proj 4", projectName: "Chronicles of Ink", info: "01/07/2024", coords: "RA 21h33m · DEC −05°17′", hoverImage: "images/previews/chronicles_preview.jpg", anteImg: "images/ante/chron_ante.jpg", description: "The Chronicles of Ink is an Interactive Digital Narrative experience that explores social judgement and self-exploration through the metaphorical fantasy world of Talea. The project aims to raise awareness of the social double standard towards tattoos by examining how the perception of these art forms varies culturally and socially.", url: "project4.html" },
+    { name: "Proj 5", projectName: "Beyondwaste", info: "27/02/2025", coords: "RA 12h47m · DEC +62°55′", hoverImage: "images/previews/beyond_preview.jpg", anteImg: "images/ante/beyond_ante.jpg", description: "Beyondwaste is a presentation event designed by LATTER Studio for the innovative E-Trash bin concept. I contributed to the project by creating high-quality 3D visuals for the event's launch campaign. ", url: "project5.html" },
+    { name: "Proj 6", projectName: "Salotto di Milano", info: "15/01/2024", coords: "RA 06h05m · DEC +31°24′", hoverImage: "images/previews/salotto_preview.jpg", anteImg: "images/ante/salotto_ante.jpg", description: "The Salotto di Milano stands as an intersection of art, technology and culture. It is a journey that redefines how we all interact in the digital age, expanding the heart of Milano in the digital space.", url: "project6.html" },
 ];
 
 const rings = [];
@@ -48,6 +59,13 @@ let interactionPlane; // Piano invisibile per il raycasting del mouse sulla gala
 let INTERSECTED = null;
 
 const ringDistance = 6;
+// Gli anelli restano un livello di sfondo: le etichette hanno la precedenza visiva
+const RING_IDLE_OPACITY = 0.45;
+// Opacità dei progetti non selezionati durante l'hover
+const PROJECT_DIMMED_OPACITY = 0.15;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ≈ 137.5°
+// Margine tra il bordo del progetto e la ripresa dell'anello (~10px a schermo)
+const PROJECT_RING_GAP = 1.3;
 
 // Carica il modello 3D
 const gltfLoader = new THREE.GLTFLoader();
@@ -148,15 +166,11 @@ Object.keys(customShapesConfig).forEach(key => {
             box.getSize(size);
             const maxDim = Math.max(size.x, size.y, size.z);
             
-            // Usa la scala definita nella configurazione
+            // Usa la scala definita nella configurazione. Nessuna inclinazione:
+            // il modello ruota nella scheda con l'asse verticale dritto
             const scaleFactor = config.scale / (maxDim || 1);
 
-            // Aggiungi una leggera rotazione casuale per inclinare l'asse verticale
-            const randomTiltX = (Math.random() - 0.5) * 0.5; // Inclinazione casuale X (+/- 15 gradi circa)
-            const randomTiltZ = (Math.random() - 0.5) * 0.5; // Inclinazione casuale Z
-            const tiltEuler = new THREE.Euler(randomTiltX, 0, randomTiltZ);
-
-            loadedShapes[index] = positions.map(p => p.sub(center).applyEuler(tiltEuler).multiplyScalar(scaleFactor));
+            loadedShapes[index] = positions.map(p => p.sub(center).multiplyScalar(scaleFactor));
             console.log(`Forma Progetto ${index + 1} caricata:`, loadedShapes[index].length, "punti");
         }
     });
@@ -213,7 +227,7 @@ function init() {
 
 window.addEventListener('resize', () => {
     if (!isRotationPaused) {
-        rotatingSpeed = window.innerWidth <= 768 ? 0.00002 : 0.0002;
+        rotatingSpeed = getIdleSpeed();
     }
 });
 
@@ -249,7 +263,7 @@ function adjustGalaxyScale() {
 // Crea la sfera centrale
 function createCentralSphere() {
     const sphereGeometry = new THREE.SphereGeometry(4, 25, 25);
-    const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0xffffff, shininess: 11 });
+    const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0xffffff, shininess: 11, transparent: true, opacity: 1 });
     // Salva la sfera in una variabile globale
     centralSphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     galaxy.add(centralSphere);
@@ -260,16 +274,28 @@ function createCentralSphere() {
 function createRingsAndProjects() {
     const ringCount = projectsData.length;
     const projectCount = projectsData.length;
-    const ringThickness = window.innerWidth <= 768 ? 0.08 : 0.04;
+    const ringThickness = window.innerWidth <= 768 ? 0.06 : 0.028;
 
+
+    const projectDimension = window.innerWidth <= 768 ? 2.0 : 1.5;
 
     for (let i = 0; i < ringCount; i++) {
-        const ringGeometry = new THREE.TorusGeometry(10 + i * ringDistance, ringThickness, 10, 200);
-        const ringMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x040404, shininess: 11, side: THREE.DoubleSide, transparent: true, opacity: 1 });
+        const radius = 10 + i * ringDistance;
+
+        // L'anello si interrompe attorno al progetto lasciando un margine
+        // costante oltre il bordo del cerchio: più l'anello è largo, minore
+        // è l'angolo necessario a coprire la stessa distanza.
+        const halfGap = (projectDimension + PROJECT_RING_GAP) / radius;
+        const arc = Math.PI * 2 - halfGap * 2;
+
+        const ringGeometry = new THREE.TorusGeometry(radius, ringThickness, 10, 200, arc);
+        const ringMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x040404, shininess: 11, side: THREE.DoubleSide, transparent: true, opacity: RING_IDLE_OPACITY });
         const ring = new THREE.Mesh(ringGeometry, ringMaterial);
 
         ring.rotation.x = Math.PI / 2;
-        ring.userData = { angle: 0 };
+        // Il varco della geometria è centrato qui: sottraendolo dall'angolo del
+        // progetto, l'interruzione resta agganciata al pianeta mentre orbita
+        ring.userData = { angle: 0, gapOffset: arc / 2 + Math.PI };
         rings.push(ring);
         galaxy.add(ring);
 
@@ -283,18 +309,23 @@ function createProject(projectData, ringIndex) {
     const projectDimension = window.innerWidth <= 768 ? 2.0 : 1.5;
 
     const projectGeometry = new THREE.CircleGeometry(projectDimension, 64);
-    const projectMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    const projectMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 1 });
     const projectMesh = new THREE.Mesh(projectGeometry, projectMaterial);
 
     projectMesh.userData = {
         ringIndex: ringIndex,
-        angle: (ringIndex / projectsData.length) * Math.PI * 2 + (Math.random() * 0.5), // Posizione sfalsata
+        // Angolo aureo: due anelli adiacenti risultano sempre a ~137.5° l'uno
+        // dall'altro, così le etichette non si accavallano mai. Tutti i
+        // progetti hanno la stessa velocità angolare, quindi la distribuzione
+        // resta valida nel tempo.
+        angle: ringIndex * GOLDEN_ANGLE,
         hoverImage: projectData.hoverImage,
         anteImg: projectData.anteImg,
         description: projectData.description,
         name: projectData.name,
         projectName: projectData.projectName,
         info: projectData.info,
+        coords: projectData.coords,
         url: projectData.url, // Associa l'URL del progetto
         originalMaterial: projectMaterial,
         outlineMaterial: new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }),
@@ -309,17 +340,24 @@ function createProject(projectData, ringIndex) {
     previewImage.visible = false;
     previewImages.push(previewImage);
     galaxy.add(previewImage);
-    const label = createLabel(projectData.name);
+
+    const label = createLabel(projectData, ringIndex);
+    label.classList.add('label-hidden');
+    label.dataset.state = 'hidden';
     labels.push(label);
-    galaxy.add(label);
+    // Reveal sequenziale all'avvio, dal centro verso l'esterno
+    setTimeout(() => revealLabel(label), 900 + ringIndex * 260);
 }
 
 function createParticles() {
-    const particleCount = 5000; // Numero di particelle aumentato
+    const particleCount = 3200;
     const geometry = new THREE.BufferGeometry();
     particlePositions = new Float32Array(particleCount * 3);
     particleInitialPositions = new Float32Array(particleCount * 3);
     particleTargetPositions = new Float32Array(particleCount * 3);
+    // Luminosità variabile per particella: il campo stellare acquista profondità
+    // e smette di competere con le etichette dei progetti
+    const particleColors = new Float32Array(particleCount * 3);
 
     // Distribuisci le particelle in un'area simile agli anelli
     for (let i = 0; i < particleCount; i++) {
@@ -344,15 +382,22 @@ function createParticles() {
         particleTargetPositions[i * 3] = x;
         particleTargetPositions[i * 3 + 1] = y;
         particleTargetPositions[i * 3 + 2] = z;
+
+        // Curva esponenziale: molte stelle deboli, poche brillanti
+        const brightness = 0.28 + 0.72 * Math.pow(Math.random(), 2.2);
+        particleColors[i * 3] = brightness;
+        particleColors[i * 3 + 1] = brightness;
+        particleColors[i * 3 + 2] = brightness;
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
 
     const material = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.1, // Dimensione dei puntini
+        size: 0.09,
+        vertexColors: true,
         transparent: true,
-        opacity: 0.7
+        opacity: 0.45
     });
     
     // Store original values
@@ -509,47 +554,99 @@ function resetRocketTrail() {
 // Funzione aggiornata per gestire l'hover
 
 
-function createLabel(text) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+// Etichette HTML sovrapposte al canvas: il testo resta nitido, tipografico,
+// e con mix-blend-mode: difference si inverte da solo sopra le aree bianche.
+function createLabel(projectData, index) {
+    const el = document.createElement('div');
+    el.className = 'planet-label';
 
-    // Aumenta la larghezza del canvas mantenendo l'altezza invariata
-    canvas.width = 512;  // Aumentata da 512 a 800
-    canvas.height = 128;
+    const nameEl = document.createElement('span');
+    nameEl.className = 'planet-label-name';
+    nameEl.dataset.text = projectData.projectName;
 
-    // Imposta il font e le proprietà del testo
-    if (window.innerWidth <= 768) {
-        context.font = "bold 40px Hanken Grotesk";
-    } else {
-        context.font = "40px Hanken Grotesk";
+    const dateEl = document.createElement('span');
+    dateEl.className = 'planet-label-meta';
+    dateEl.dataset.text = projectData.info;
+
+    const coordsEl = document.createElement('span');
+    coordsEl.className = 'planet-label-meta';
+    coordsEl.dataset.text = projectData.coords;
+
+    el.appendChild(nameEl);
+    el.appendChild(dateEl);
+    el.appendChild(coordsEl);
+    document.getElementById('labels').appendChild(el);
+
+    // Il numero vive su un livello separato: #labels è in mix-blend-mode
+    // difference (che invertirebbe il blu in arancio sopra i cerchi bianchi),
+    // mentre il blu key resta leggibile sia sul nero sia sul bianco.
+    const numEl = document.createElement('span');
+    numEl.className = 'planet-label-num';
+    numEl.dataset.text = String(index + 1).padStart(2, '0');
+    document.getElementById('labelNums').appendChild(numEl);
+    el.numEl = numEl;
+
+    return el;
+}
+
+// Tempi di scramble: il nome più lento e leggibile, i metadati più rapidi
+function labelScrambleOptions(el, fast) {
+    if (el.classList.contains('planet-label-name')) {
+        return fast ? { charDelay: 16, settleEvery: 2, trail: 4 } : { charDelay: 34, trail: 5 };
     }
+    return fast ? { charDelay: 10, settleEvery: 3, trail: 6 } : { charDelay: 20, settleEvery: 2, trail: 7 };
+}
 
-    // Posizione fissa per il testo dall'inizio del canvas
-    const xPosition = 50;  // Distanza dal margine sinistro
-    const yPosition = canvas.height / 2;
+// Il numero sta in un altro contenitore ma si anima insieme al resto
+function labelParts(label) {
+    return [...label.querySelectorAll('[data-text]'), label.numEl];
+}
 
-    // Imposta l'allineamento del testo
-    context.textAlign = "left";
-    context.textBaseline = "middle";
+// Rivela un'etichetta con l'effetto scramble (definito in main.js)
+function revealLabel(label, fast) {
+    label.dataset.state = 'visible';
+    label.classList.remove('label-hidden');
+    label.numEl.classList.remove('label-hidden');
+    labelParts(label).forEach(el => {
+        scrambleIn(el, el.dataset.text, labelScrambleOptions(el, fast));
+    });
+}
 
-    // Disegna l'outline
-    context.strokeStyle = 'black';
-    context.lineWidth = 3;
-    context.strokeText(text, xPosition, yPosition);
+// Nasconde subito, senza animazione (per il progetto sotto al cursore,
+// la cui area viene comunque coperta dall'anteprima)
+function hideLabel(label) {
+    label.dataset.state = 'hidden';
+    label.classList.add('label-hidden');
+    label.numEl.classList.add('label-hidden');
+}
 
-    // Disegna il testo principale
-    context.fillStyle = 'white';
-    context.fillText(text, xPosition, yPosition);
+// Nasconde con l'animazione inversa a quella di comparsa
+function dissolveLabel(label) {
+    label.dataset.state = 'hiding';
+    const parts = labelParts(label);
+    let remaining = parts.length;
+    parts.forEach(el => {
+        scrambleOut(el, el.dataset.text, labelScrambleOptions(el, true), () => {
+            // Se nel frattempo l'etichetta è tornata visibile, non nasconderla
+            if (--remaining === 0 && label.dataset.state === 'hiding') {
+                label.classList.add('label-hidden');
+                label.numEl.classList.add('label-hidden');
+                label.dataset.state = 'hidden';
+            }
+        });
+    });
+}
 
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
+// Durante l'hover su un progetto tutte le altre etichette si dissolvono
+function dissolveOtherLabels(exceptIndex) {
+    labels.forEach((label, i) => {
+        if (i === exceptIndex || label.dataset.state === 'hiding' || label.dataset.state === 'hidden') return;
+        dissolveLabel(label);
+    });
+}
 
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
-    const sprite = new THREE.Sprite(spriteMaterial);
-
-    // Adatta la scala della sprite alla nuova larghezza del canvas
-    sprite.scale.set(20, 5, 1);  // Aumentata la x da 20 a 30
-    return sprite;
+function revealAllLabels() {
+    labels.forEach(label => revealLabel(label, true));
 }
 
 function createPreviewImage(hoverImage) {
@@ -597,6 +694,34 @@ function animateRingsOpacity(targetOpacity, duration) {
     });
 }
 
+function tweenMaterialOpacity(material, targetOpacity, duration) {
+    if (!material) return;
+    material.transparent = true;
+    if (material.userData.opacityTween) material.userData.opacityTween.stop();
+
+    material.userData.opacityTween = new TWEEN.Tween({ opacity: material.opacity })
+        .to({ opacity: targetOpacity }, duration)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .onUpdate(function (obj) {
+            material.opacity = obj.opacity;
+        })
+        .start();
+}
+
+// Durante l'hover solo il progetto puntato resta pieno: gli altri e la
+// stella centrale arretrano.
+function focusOnProject(focusMesh, duration) {
+    projectsMeshes.forEach(mesh => {
+        // Senza un progetto a fuoco tornano tutti pieni: confrontare con null
+        // avrebbe lasciato ogni pianeta al valore ridotto
+        const target = !focusMesh || mesh === focusMesh ? 1 : PROJECT_DIMMED_OPACITY;
+        tweenMaterialOpacity(mesh.material, target, duration);
+    });
+    if (centralSphere) {
+        tweenMaterialOpacity(centralSphere.material, focusMesh ? PROJECT_DIMMED_OPACITY : 1, duration);
+    }
+}
+
 function animateParticlesMaterial(targetOpacity, targetSize, duration) {
     if (!particlesMesh) return;
     
@@ -638,33 +763,57 @@ function animateOpacity(object, targetOpacity, duration, onCompleteCallback) {
         .start();
 }
 
+const labelWorldPos = new THREE.Vector3();
+
+// --- Aggancio magnetico del cursore all'elemento sotto di esso ---
+const snapCenter = new THREE.Vector3();
+const snapEdge = new THREE.Vector3();
+const camRight = new THREE.Vector3();
+const CURSOR_SNAP_PADDING = 18; // px oltre il bordo dell'elemento
+
+function updateCursorSnap(mesh) {
+    mesh.getWorldPosition(snapCenter);
+
+    // Raggio dell'elemento proiettato in pixel: prendo un punto sul bordo
+    // lungo l'asse orizzontale della camera e misuro la distanza a schermo
+    const worldRadius = (mesh.geometry.parameters.radius || 1.5) * mesh.scale.x;
+    camRight.setFromMatrixColumn(camera.matrixWorld, 0).multiplyScalar(worldRadius);
+    snapEdge.copy(snapCenter).add(camRight);
+
+    snapCenter.project(camera);
+    snapEdge.project(camera);
+
+    const cx = (snapCenter.x * 0.5 + 0.5) * window.innerWidth;
+    const cy = (-snapCenter.y * 0.5 + 0.5) * window.innerHeight;
+    const ex = (snapEdge.x * 0.5 + 0.5) * window.innerWidth;
+
+    snapCursorTo(cx, cy, Math.abs(ex - cx) * 2 + CURSOR_SNAP_PADDING);
+}
+
 function updateProjects() {
-    // Rendi il movimento dei progetti condizionale, ma l'orientamento costante
     projectsMeshes.forEach((projectMesh, index) => {
+        const radius = 10 + projectMesh.userData.ringIndex * ringDistance;
+
         if (projectsMoving) {
-            const ring = rings[projectMesh.userData.ringIndex];
-            const radius = 10 + projectMesh.userData.ringIndex * ringDistance;
-
-            projectMesh.userData.angle -= 0.001; // Rallenta il movimento dei progetti
-            const angle = projectMesh.userData.angle;
-
-            projectMesh.position.set(
-                Math.cos(angle) * radius,
-                0,
-                Math.sin(angle) * radius
-            );
+            // La velocità propria compensa quella della galassia: la velocità
+            // netta percepita resta costante anche con l'idle più veloce
+            const ownSpeed = Math.max(0, getNetProjectSpeed() - (rotating ? rotatingSpeed : 0));
+            projectMesh.userData.angle -= ownSpeed;
         }
+
+        const angle = projectMesh.userData.angle;
+        projectMesh.position.set(
+            Math.cos(angle) * radius,
+            0,
+            Math.sin(angle) * radius
+        );
+
+        // Trascina l'interruzione dell'anello insieme al progetto
+        const ring = rings[projectMesh.userData.ringIndex];
+        if (ring) ring.rotation.z = angle - ring.userData.gapOffset;
 
         // Mantieni i progetti orientati verso la camera indipendentemente dallo stato di rotazione
         projectMesh.lookAt(camera.position);
-
-        const label = labels[index];
-        label.position.set(
-            projectMesh.position.x,
-            projectMesh.position.y,
-            projectMesh.position.z
-        );
-        label.lookAt(camera.position);
 
         const previewImage = previewImages[index];
         previewImage.position.set(
@@ -673,6 +822,34 @@ function updateProjects() {
             projectMesh.position.z
         );
         previewImage.lookAt(camera.position);
+
+        // Proietta la posizione 3D del progetto in coordinate schermo per l'etichetta HTML
+        const label = labels[index];
+        projectMesh.getWorldPosition(labelWorldPos);
+        const distance = labelWorldPos.distanceTo(camera.position);
+        labelWorldPos.project(camera);
+
+        const hidden = label.classList.contains('label-hidden');
+
+        if (labelWorldPos.z > 1 || hidden) {
+            // Dietro la camera o nascosta dall'hover
+            label.style.opacity = '0';
+            label.numEl.style.opacity = '0';
+        } else {
+            const x = (labelWorldPos.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-labelWorldPos.y * 0.5 + 0.5) * window.innerHeight;
+            // Scala e opacità in base alla distanza: i progetti sul lato lontano
+            // arretrano invece di competere con quelli in primo piano
+            const depthScale = Math.min(1.25, Math.max(0.55, 62 / distance));
+            const depthOpacity = Math.min(1, Math.max(0.32, (110 - distance) / 55));
+            const transform = 'translate(' + (x + 34 * depthScale) + 'px, ' + (y - 10 * depthScale) + 'px) scale(' + depthScale + ')';
+
+            label.style.opacity = depthOpacity.toFixed(3);
+            label.style.transform = transform;
+            // Stesso ancoraggio: il numero resta allineato al nome
+            label.numEl.style.opacity = depthOpacity.toFixed(3);
+            label.numEl.style.transform = transform;
+        }
     });
 }
 
@@ -729,6 +906,15 @@ function updateParticles() {
         let ty = particleTargetPositions[iy];
         let tz = particleTargetPositions[iz];
 
+        // Mentre le particelle compongono il modello del progetto non devono
+        // essere disturbate da mouse e razzo: la forma deve restare leggibile
+        if (shapeBase) {
+            positions[ix] += (tx - px) * returnSpeed;
+            positions[iy] += (ty - py) * returnSpeed;
+            positions[iz] += (tz - pz) * returnSpeed;
+            continue;
+        }
+
         // --- Logica 1: Mouse Repulsion (Sferica) ---
         const dxMouse = px - localMouse.x;
         const dyMouse = py - localMouse.y;
@@ -769,72 +955,139 @@ function updateParticles() {
     particlesMesh.geometry.attributes.position.needsUpdate = true;
 }
 
-// Funzione per generare le posizioni target basate su forme geometriche
-function generateShapePositions(shapeIndex) {
-    // Se esiste una forma caricata per questo indice (es. Progetto 6), usala
-    if (loadedShapes[shapeIndex]) {
-        const shapePoints = loadedShapes[shapeIndex];
-        const totalPoints = shapePoints.length;
-        
-        for (let i = 0; i < particleTargetPositions.length / 3; i++) {
-            // Campiona casualmente i punti dalla forma caricata
-            const randomIndex = Math.floor(Math.random() * totalPoints);
-            const point = shapePoints[randomIndex];
-            
-            particleTargetPositions[i * 3] = point.x;
-            particleTargetPositions[i * 3 + 1] = point.y;
-            particleTargetPositions[i * 3 + 2] = point.z;
-        }
-        return;
-    }
+// Restituisce i punti della forma di un progetto, centrati sull'origine
+function getShapePoints(shapeIndex) {
+    if (loadedShapes[shapeIndex]) return loadedShapes[shapeIndex];
 
-    const size = 35; // Dimensione della forma
+    // Ripiego geometrico se il modello del progetto non è (ancora) caricato
+    const size = 35;
     let geometry;
-    
-    // Seleziona la geometria in base all'indice del progetto
-    switch(shapeIndex % 6) {
+    switch (shapeIndex % 6) {
         case 0: geometry = new THREE.BoxGeometry(size, size, size); break;
         case 1: geometry = new THREE.TetrahedronGeometry(size * 0.8); break;
         case 2: geometry = new THREE.OctahedronGeometry(size * 0.8); break;
         case 3: geometry = new THREE.IcosahedronGeometry(size * 0.7); break;
         case 4: geometry = new THREE.DodecahedronGeometry(size * 0.7); break;
-        case 5: geometry = new THREE.TorusGeometry(size * 0.5, size * 0.1, 16, 100); break;
-        default: geometry = new THREE.BoxGeometry(size, size, size);
+        default: geometry = new THREE.TorusGeometry(size * 0.5, size * 0.1, 16, 100);
     }
-    
-    // Estrai gli spigoli (edges) dalla geometria
+
     const edges = new THREE.EdgesGeometry(geometry);
     const edgePositions = edges.attributes.position.array;
-    const totalPoints = edgePositions.length / 3;
-    const segmentCount = totalPoints / 2;
-    
-    // Distribuisci le particelle lungo gli spigoli
-    for (let i = 0; i < particleTargetPositions.length / 3; i++) {
-        // Scegli un segmento a caso
-        const segmentIndex = Math.floor(Math.random() * segmentCount);
-        const start = segmentIndex * 6; // 2 punti * 3 coordinate
-        
-        const ax = edgePositions[start];
-        const ay = edgePositions[start + 1];
-        const az = edgePositions[start + 2];
-        
-        const bx = edgePositions[start + 3];
-        const by = edgePositions[start + 4];
-        const bz = edgePositions[start + 5];
-        
-        // Interpola casualmente lungo il segmento
-        const t = Math.random();
-        
-        particleTargetPositions[i * 3] = ax + (bx - ax) * t;
-        particleTargetPositions[i * 3 + 1] = ay + (by - ay) * t;
-        particleTargetPositions[i * 3 + 2] = az + (bz - az) * t;
+    const segmentCount = edgePositions.length / 6;
+
+    const points = [];
+    for (let s = 0; s < segmentCount; s++) {
+        const start = s * 6;
+        // Punti distribuiti lungo ciascuno spigolo
+        for (let k = 0; k < 12; k++) {
+            const t = k / 11;
+            points.push(new THREE.Vector3(
+                edgePositions[start] + (edgePositions[start + 3] - edgePositions[start]) * t,
+                edgePositions[start + 1] + (edgePositions[start + 4] - edgePositions[start + 1]) * t,
+                edgePositions[start + 2] + (edgePositions[start + 5] - edgePositions[start + 2]) * t
+            ));
+        }
     }
-    
+
     geometry.dispose();
     edges.dispose();
+    return points;
+}
+
+// --- Modello a particelle ospitato nell'area immagine della scheda ---
+let shapeBase = null;        // campionamento fisso: evita che le particelle
+let shapeMaxRadiusXZ = 1;    // saltino da un punto all'altro a ogni frame
+let shapeMaxY = 1;
+let shapeAngle = 0;
+
+const SHAPE_DISTANCE = 32;   // distanza dalla camera: davanti alla galassia
+const SHAPE_MARGIN = 0.86;   // margine interno rispetto ai bordi dell'area
+const SHAPE_SPIN = 0.0022;   // ~45 secondi per giro completo
+
+// Dimensione delle particelle mentre compongono il modello nella scheda,
+// con override per i modelli che risultano troppo densi
+const SHAPE_PARTICLE_SIZE_DEFAULT = 0.13;
+const SHAPE_PARTICLE_SIZE = { 2: 0.078 }; // Proj 3 (VOTE): 40% più piccole
+
+const shapeMatrix = new THREE.Matrix4();
+const shapeTmpMatrix = new THREE.Matrix4();
+const shapeTmpVec = new THREE.Vector3();
+
+function prepareShape(shapeIndex) {
+    const points = getShapePoints(shapeIndex);
+    if (!points || points.length === 0) return;
+
+    const count = particleTargetPositions.length / 3;
+    shapeBase = new Float32Array(count * 3);
+    shapeAngle = 0;
+
+    let maxRadius = 0;
+    let maxY = 0;
+    for (let i = 0; i < count; i++) {
+        const p = points[Math.floor(Math.random() * points.length)];
+        shapeBase[i * 3] = p.x;
+        shapeBase[i * 3 + 1] = p.y;
+        shapeBase[i * 3 + 2] = p.z;
+
+        // Ruotando attorno a Y è il raggio nel piano XZ a poter sbordare
+        maxRadius = Math.max(maxRadius, Math.sqrt(p.x * p.x + p.z * p.z));
+        maxY = Math.max(maxY, Math.abs(p.y));
+    }
+    shapeMaxRadiusXZ = maxRadius || 1;
+    shapeMaxY = maxY || 1;
+}
+
+function updateShapeTargets() {
+    if (!shapeBase) return;
+
+    const rect = projectStage.getBoundingClientRect();
+    if (rect.width < 1) return;
+
+    shapeAngle += SHAPE_SPIN;
+
+    // Punto del mondo che cade al centro dell'area, a distanza fissa
+    const ndcX = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
+    const ndcY = -((rect.top + rect.height / 2) / window.innerHeight) * 2 + 1;
+    const dir = new THREE.Vector3(ndcX, ndcY, 0.5).unproject(camera).sub(camera.position).normalize();
+    const worldPos = camera.position.clone().add(dir.multiplyScalar(SHAPE_DISTANCE));
+
+    // Quanto misura un pixel dello schermo a quella distanza
+    const visibleHeight = 2 * Math.tan(THREE.Math.degToRad(camera.fov) / 2) * SHAPE_DISTANCE;
+    const unitsPerPixel = visibleHeight / window.innerHeight;
+    const halfWidth = (rect.width / 2) * unitsPerPixel * SHAPE_MARGIN;
+    const halfHeight = (rect.height / 2) * unitsPerPixel * SHAPE_MARGIN;
+
+    // Il lato più vincolante decide la scala: così il modello resta dentro
+    // l'area per tutti i 360° della rotazione
+    const flatScale = Math.min(halfWidth / shapeMaxRadiusXZ, halfHeight / shapeMaxY);
+
+    // Correzione prospettica: i punti del modello rivolti verso la camera
+    // sono più vicini di SHAPE_DISTANCE e quindi proiettano più grandi.
+    // Senza questo fattore la forma sborda dai bordi dell'area.
+    const nearestOffset = flatScale * shapeMaxRadiusXZ;
+    const scale = flatScale * (SHAPE_DISTANCE - nearestOffset) / SHAPE_DISTANCE;
+
+    // Le particelle vivono nello spazio di starGroup: compongo
+    // inversa(starGroup) · traslazione · rotazione · scala
+    starGroup.updateMatrixWorld();
+    shapeMatrix.copy(starGroup.matrixWorld).invert();
+    shapeMatrix.multiply(shapeTmpMatrix.makeTranslation(worldPos.x, worldPos.y, worldPos.z));
+    shapeMatrix.multiply(shapeTmpMatrix.makeRotationY(shapeAngle));
+    shapeMatrix.multiply(shapeTmpMatrix.makeScale(scale, scale, scale));
+
+    const count = particleTargetPositions.length / 3;
+    for (let i = 0; i < count; i++) {
+        shapeTmpVec
+            .set(shapeBase[i * 3], shapeBase[i * 3 + 1], shapeBase[i * 3 + 2])
+            .applyMatrix4(shapeMatrix);
+        particleTargetPositions[i * 3] = shapeTmpVec.x;
+        particleTargetPositions[i * 3 + 1] = shapeTmpVec.y;
+        particleTargetPositions[i * 3 + 2] = shapeTmpVec.z;
+    }
 }
 
 function resetParticleTargets() {
+    shapeBase = null;
     for (let i = 0; i < particleTargetPositions.length; i++) {
         particleTargetPositions[i] = particleInitialPositions[i];
     }
@@ -905,7 +1158,7 @@ function onClick(event) {
     } else {
         // Comportamento desktop esistente
         if (INTERSECTED) {
-            if (infoCard.style.display === 'block') {
+            if (infoCard.style.display !== 'none' && infoCard.style.display !== '') {
                 infoCard.classList.add('expandCard');
                 const projectUrl = INTERSECTED.userData.url;
                 if (projectUrl) {
@@ -938,7 +1191,7 @@ function stopRotation() {
 }
 
 function startRotation() {
-    const targetSpeed = window.innerWidth <= 768 ? 0.00002 : 0.0002;  // Velocità ridotta
+    const targetSpeed = getIdleSpeed();
 
     new TWEEN.Tween({ speed: 0 })
         .to({ speed: targetSpeed }, 1000)
@@ -1128,6 +1381,7 @@ function animate() {
 
     TWEEN.update();
     updateProjects();
+    updateShapeTargets(); // Fa ruotare il modello dentro l'area della scheda
     updateParticles(); // Aggiorna le particelle
     updateRocketTrail(); // Update the trail every frame
     galaxy.position.y = galaxyPositionY;
@@ -1178,8 +1432,9 @@ function animate() {
             const projectIntersects = raycaster.intersectObjects(projectsMeshes);
             if (projectIntersects.length > 0) {
                 document.body.classList.add('cursor-hovered');
-                
+
                 const intersected = projectIntersects[0].object;
+                updateCursorSnap(intersected);
 
                 // Effetto Tilt 3D (Parallax)
                 const localPoint = intersected.worldToLocal(projectIntersects[0].point.clone());
@@ -1195,42 +1450,53 @@ function animate() {
 
                 if (INTERSECTED !== intersected) {
                     if (INTERSECTED) {
-                        labels[projectsMeshes.indexOf(INTERSECTED)].visible = true;
                         animateOpacity(previewImages[projectsMeshes.indexOf(INTERSECTED)], 0, 150);
                         animateScale(INTERSECTED, 1, 150);
                     }
                     INTERSECTED = intersected;
-                    labels[projectsMeshes.indexOf(INTERSECTED)].visible = false;
+                    hideLabel(labels[projectsMeshes.indexOf(INTERSECTED)]);
+                    dissolveOtherLabels(projectsMeshes.indexOf(INTERSECTED));
                     animateScale(INTERSECTED, 5, 150, () => {
                         animateOpacity(previewImages[projectsMeshes.indexOf(INTERSECTED)], 1, 150);
                     });
                     showInfoCard(
-                        INTERSECTED.userData.name,
-                        INTERSECTED.userData.description,
-                        INTERSECTED.userData.anteImg,
-                        INTERSECTED.userData.info
+                        INTERSECTED.userData,
+                        projectsMeshes.indexOf(INTERSECTED),
+                        projectsData.length
                     );
                     
-                    // Genera la forma geometrica corrispondente al progetto
-                    generateShapePositions(projectsMeshes.indexOf(INTERSECTED));
-                    
+                    // Prepara il modello a particelle del progetto: verrà
+                    // posizionato e fatto ruotare dentro l'area della scheda
+                    const shapeIndex = projectsMeshes.indexOf(INTERSECTED);
+                    prepareShape(shapeIndex);
+
+                    const shapeParticleSize = SHAPE_PARTICLE_SIZE[shapeIndex] !== undefined
+                        ? SHAPE_PARTICLE_SIZE[shapeIndex]
+                        : SHAPE_PARTICLE_SIZE_DEFAULT;
+
                     stopRotation();
                     stopProjectsMovement();
                     animateRingsOpacity(0.2, 500); // Riduci opacità anelli
-                    animateParticlesMaterial(1, 0.2, 500);
+                    animateParticlesMaterial(1, shapeParticleSize, 500);
+                    focusOnProject(INTERSECTED, 400);
                 }
             } else {
                 document.body.classList.remove('cursor-hovered');
+                releaseCursor(
+                    (mouse.x * 0.5 + 0.5) * window.innerWidth,
+                    (-mouse.y * 0.5 + 0.5) * window.innerHeight
+                );
                 if (INTERSECTED) {
-                labels[projectsMeshes.indexOf(INTERSECTED)].visible = true;
                 animateOpacity(previewImages[projectsMeshes.indexOf(INTERSECTED)], 0, 150);
                 animateScale(INTERSECTED, 1, 150);
                 INTERSECTED = null;
+                revealAllLabels();
                 hideInfoCard();
-                
+
                 // Ripristina le particelle alla forma della galassia
                 resetParticleTargets();
-                animateRingsOpacity(1, 500); // Ripristina opacità anelli
+                focusOnProject(null, 400);
+                animateRingsOpacity(RING_IDLE_OPACITY, 500); // Ripristina opacità anelli
                 animateParticlesMaterial(particlesMesh.material.userData.originalOpacity, particlesMesh.material.userData.originalSize, 500);
                 }
             }
