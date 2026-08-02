@@ -300,7 +300,10 @@ function releaseDomSnap(mouseX, mouseY) {
     releaseCursor(mouseX, mouseY);
 }
 
-function attachCursorSnap(el, padding) {
+// paddingY può essere negativo: utile quando l'elemento ha molto padding
+// interno e la cornice deve aderire al testo, non alla sua area cliccabile
+function attachCursorSnap(el, paddingX, paddingY) {
+    if (paddingY === undefined) paddingY = paddingX;
     el.addEventListener('mouseenter', () => {
         const rect = el.getBoundingClientRect();
         domSnapActive = true;
@@ -308,8 +311,8 @@ function attachCursorSnap(el, padding) {
         snapCursorTo(
             rect.left + rect.width / 2,
             rect.top + rect.height / 2,
-            rect.width + padding * 2,
-            rect.height + padding * 2
+            rect.width + paddingX * 2,
+            rect.height + paddingY * 2
         );
     });
     el.addEventListener('mouseleave', (e) => {
@@ -321,4 +324,6 @@ function attachCursorSnap(el, padding) {
 ['homeBtn', 'aboutBtn', 'toggleRotation', 'closeAboutBtn'].forEach(id => {
     attachCursorSnap(document.getElementById(id), 10);
 });
-document.querySelectorAll('.route-btn').forEach(btn => attachCursorSnap(btn, 8));
+// I selettori hanno 14px di padding verticale proprio: la cornice lo
+// scavalca e si stringe attorno al testo
+document.querySelectorAll('.route-btn').forEach(btn => attachCursorSnap(btn, 8, -9));
