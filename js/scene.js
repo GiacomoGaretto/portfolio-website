@@ -17,14 +17,22 @@ let galaxyPositionY = 9;
 let isModelActive = false; // Stato iniziale: la sfera è visibile
 let modelVisible = false; // Stato per il click su mobile
 
-// --- NEW VARIABLES FOR ROCKET TRAIL ---
-let rocketMesh = null;
-let previousRocketPosition = new THREE.Vector3();
+// Scia continua del razzo
+let rocketTrailAnchor = null;
 let trailMesh;
-const trailParticlesData = [];
-const maxTrailParticles = 200;
+const rocketTrailPoints = [];
+const MAX_ROCKET_TRAIL_POINTS = 180;
+const ROCKET_TRAIL_HOLD = 0.21;
+const ROCKET_TRAIL_FADE = 0.63;
+const trailWorldPosition = new THREE.Vector3();
+const trailLocalPosition = new THREE.Vector3();
+const trailCameraPosition = new THREE.Vector3();
+const trailTangent = new THREE.Vector3();
+const trailViewDirection = new THREE.Vector3();
+const trailSide = new THREE.Vector3();
+const trailLeft = new THREE.Vector3();
+const trailRight = new THREE.Vector3();
 let isRocketEngineActive = false;
-// --------------------------------------
 
 
 let starGroup; // Gruppo per le stelle
@@ -71,59 +79,233 @@ const PROJECT_RING_GAP = 1.3;
 const gltfLoader = new THREE.GLTFLoader();
 let model3D;
 let loadedShapes = {}; // Oggetto per memorizzare le forme caricate
-let mixer;
-let modelAnimation;
-let morphTargetMeshes = [];
 let clock = new THREE.Clock(); // Usa il clock per il delta time
+let rocketCurve = null;
+let rocketRotationInterpolant = null;
+let rocketAnimationDuration = 10;
+let rocketAnimationTime = 0;
+let rocketCurveProgress = 0;
+let rocketJourneyComplete = false;
+let rocketIsReturning = false;
+let rocketReturnTween = null;
+const rocketTargetQuaternion = new THREE.Quaternion();
+const rocketQuaternionBuffer = new Float32Array(4);
+const ROCKET_VISIBLE_SCALE = 1.53; // 15% in meno rispetto alla scala precedente (1.8)
+const ROCKET_ACCELERATION_DURATION = 2.2;
+const ROCKET_CRUISE_SPEED_FACTOR = 0.86;
 
-gltfLoader.load('rocket.glb', function (gltf) {
-    model3D = gltf.scene;
+gltfLoader.load('rocket-clean.glb', function (gltf) {
+    // Variante runtime generata dal GLB originale: contiene soltanto la mesh
+    // pulita del razzo e la sua clip di movimento, senza i 240 morph target.
+    model3D = gltf.scene.children[0] || gltf.scene;
+
+    if (!model3D) return;
+
+    const morphSmoke = model3D.getObjectByName('Icosphere.003');
+    if (morphSmoke) model3D.remove(morphSmoke);
+
     model3D.scale.set(0, 0, 0); // Inizia con scala 0
     model3D.visible = false;
-    galaxy.add(model3D);
+    if (galaxy) galaxy.add(model3D);
 
-    console.log("Modello caricato:", model3D);
-
-    // Debug: stampa la struttura del modello
     model3D.traverse(node => {
         if (node.isMesh) {
-            console.log("Mesh trovata:", node.name);
-            if (!rocketMesh) rocketMesh = node; // Capture the first mesh found to track position
-            if (node.morphTargetInfluences) {
-                console.log("  Ha morphTargetInfluences:", node.morphTargetInfluences.length);
-                console.log("  MorphTargetDictionary:", node.morphTargetDictionary);
-            }
+            applyRocketMaterials(node);
         }
     });
 
-    // Configura il mixer per le animazioni
-    mixer = new THREE.AnimationMixer(model3D);
+    // Punto di emissione in corrispondenza del motore, nello spazio locale
+    // del modello originale.
+    rocketTrailAnchor = new THREE.Object3D();
+    rocketTrailAnchor.position.set(0, -3.65, 0);
+    model3D.add(rocketTrailAnchor);
 
-    // Se il file GLTF contiene animazioni, imposta l'azione
-    if (gltf.animations.length > 2) {
-        console.log("Animazioni trovate:", gltf.animations.length);
-        // Crea le azioni per le animazioni 0 e 2
-        modelAnimation0 = mixer.clipAction(gltf.animations[0]);
-        modelAnimation2 = mixer.clipAction(gltf.animations[2]);
+    const pathClip = gltf.animations.find(clip => clip.name === 'Action.012');
+    prepareRocketPath(pathClip);
+}, undefined, function (error) {
+    console.error('Impossibile caricare il modello del razzo:', error);
+});
 
-        // Imposta entrambe in loop e abilitate
-        modelAnimation0.setLoop(THREE.LoopRepeat, Infinity);
-        modelAnimation2.setLoop(THREE.LoopRepeat, Infinity);
-        modelAnimation0.enabled = true;
-        modelAnimation2.enabled = true;
-        modelAnimation0.setEffectiveWeight(1);
-        modelAnimation2.setEffectiveWeight(1);
-        // Non avviarle subito: le facciamo partire in showModel
+function applyRocketMaterials(mesh) {
+    const sourceMaterials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    const materials = sourceMaterials.map(source => {
+        const material = source.clone();
+
+        switch (material.name) {
+            case 'Corpo':
+                material.color.setHex(0x9ca7af);
+                material.metalness = 0.28;
+                material.roughness = 0.58;
+                break;
+            case 'Punta':
+                material.color.setHex(0x1f51ff);
+                material.metalness = 0.38;
+                material.roughness = 0.34;
+                material.emissive.setHex(0x06143f);
+                material.emissiveIntensity = 0.32;
+                break;
+            case 'metallo':
+                material.color.setHex(0x3d4650);
+                material.metalness = 0.82;
+                material.roughness = 0.3;
+                break;
+            case 'Dettagli':
+                material.color.setHex(0x080b12);
+                material.metalness = 0.56;
+                material.roughness = 0.42;
+                break;
+            case 'Motore':
+                material.color.setHex(0x11151b);
+                material.metalness = 0.72;
+                material.roughness = 0.36;
+                material.emissive.setHex(0x07194d);
+                material.emissiveIntensity = 0.22;
+                break;
+            case 'vetro':
+                material.color.setHex(0x05080d);
+                material.metalness = 0.25;
+                material.roughness = 0.12;
+                material.transparent = true;
+                material.opacity = 0.72;
+                material.depthWrite = false;
+                break;
+        }
+
+        material.needsUpdate = true;
+        return material;
+    });
+
+    mesh.material = Array.isArray(mesh.material) ? materials : materials[0];
+}
+
+function prepareRocketPath(clip) {
+    if (!clip) return;
+
+    const positionTrack = clip.tracks.find(track => track.name.endsWith('.position'));
+    const rotationTrack = clip.tracks.find(track => track.name.endsWith('.quaternion'));
+    if (!positionTrack) return;
+
+    const points = [];
+    for (let i = 0; i < positionTrack.values.length; i += 3) {
+        points.push(new THREE.Vector3(
+            positionTrack.values[i],
+            positionTrack.values[i + 1],
+            positionTrack.values[i + 2]
+        ));
     }
 
-    // Raccogli le mesh con morph targets (senza modificarne le influenze)
-    model3D.traverse(child => {
-        if (child.isMesh && child.morphTargetInfluences) {
-            morphTargetMeshes.push(child);
-            console.log("Aggiunti morph target mesh:", child.name);
+    // L'ultimo campione coincide con il primo: la chiusura viene gestita
+    // direttamente dalla curva ed evitiamo un segmento duplicato.
+    if (points.length > 2 && points[0].distanceToSquared(points[points.length - 1]) < 0.0001) {
+        points.pop();
+    }
+
+    rocketCurve = new THREE.CatmullRomCurve3(points, true, 'centripetal', 0.5);
+    rocketCurve.arcLengthDivisions = Math.max(1000, points.length * 8);
+    rocketCurve.updateArcLengths();
+    rocketAnimationDuration = clip.duration || 10;
+    rocketRotationInterpolant = rotationTrack
+        ? rotationTrack.createInterpolant(rocketQuaternionBuffer)
+        : null;
+    resetRocketMotion();
+}
+
+function resetRocketMotion() {
+    if (rocketReturnTween) {
+        rocketReturnTween.stop();
+        rocketReturnTween = null;
+    }
+    rocketAnimationTime = 0;
+    rocketCurveProgress = 0;
+    rocketJourneyComplete = false;
+    rocketIsReturning = false;
+    if (!model3D || !rocketCurve) return;
+
+    rocketCurve.getPointAt(0, model3D.position);
+    if (rocketRotationInterpolant) {
+        const values = rocketRotationInterpolant.evaluate(0);
+        model3D.quaternion.set(values[0], values[1], values[2], values[3]).normalize();
+    }
+}
+
+function updateRocketMotion(delta) {
+    if (!model3D || !model3D.visible || !rocketCurve || rocketJourneyComplete || rocketIsReturning) return;
+
+    rocketAnimationTime += delta;
+
+    // La velocità parte da zero, cresce con uno smoothstep e si stabilizza
+    // all'86% della velocità precedente.
+    const accelerationProgress = Math.min(rocketAnimationTime / ROCKET_ACCELERATION_DURATION, 1);
+    const thrust = accelerationProgress * accelerationProgress * (3 - 2 * accelerationProgress);
+    rocketCurveProgress += delta * (ROCKET_CRUISE_SPEED_FACTOR / rocketAnimationDuration) * thrust;
+    rocketCurveProgress = Math.min(rocketCurveProgress, 1);
+    rocketCurve.getPointAt(rocketCurveProgress, model3D.position);
+
+    if (rocketRotationInterpolant) {
+        const values = rocketRotationInterpolant.evaluate(rocketCurveProgress * rocketAnimationDuration);
+        rocketTargetQuaternion.set(values[0], values[1], values[2], values[3]).normalize();
+        const smoothing = 1 - Math.exp(-12 * delta);
+        model3D.quaternion.slerp(rocketTargetQuaternion, smoothing);
+    }
+
+    if (rocketCurveProgress >= 1) {
+        rocketJourneyComplete = true;
+        isRocketEngineActive = false;
+
+        // La chiusura parte nello stesso frame in cui la curva torna
+        // esattamente al punto d'origine.
+        if (isModelActive && !isAnimating) {
+            isAnimating = true;
+            showSphere(() => {
+                isModelActive = false;
+                isAnimating = false;
+            });
         }
-    });
-});
+    }
+}
+
+function returnRocketToOriginSmoothly() {
+    if (!model3D || !model3D.visible || !rocketCurve || !isModelActive || isAnimating || rocketIsReturning) {
+        return;
+    }
+
+    rocketIsReturning = true;
+    isAnimating = true;
+    isRocketEngineActive = false;
+
+    const startPosition = model3D.position.clone();
+    const startQuaternion = model3D.quaternion.clone();
+    const destination = rocketCurve.getPointAt(1, new THREE.Vector3());
+    const destinationQuaternion = new THREE.Quaternion();
+
+    if (rocketRotationInterpolant) {
+        const values = rocketRotationInterpolant.evaluate(rocketAnimationDuration);
+        destinationQuaternion.set(values[0], values[1], values[2], values[3]).normalize();
+    } else {
+        destinationQuaternion.copy(startQuaternion);
+    }
+
+    rocketReturnTween = new TWEEN.Tween({ progress: 0 })
+        .to({ progress: 1 }, 850)
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onUpdate(state => {
+            model3D.position.lerpVectors(startPosition, destination, state.progress);
+            model3D.quaternion.copy(startQuaternion).slerp(destinationQuaternion, state.progress);
+        })
+        .onComplete(() => {
+            rocketReturnTween = null;
+            rocketIsReturning = false;
+            rocketJourneyComplete = true;
+            model3D.position.copy(destination);
+            model3D.quaternion.copy(destinationQuaternion);
+
+            showSphere(() => {
+                isModelActive = false;
+                isAnimating = false;
+            });
+        })
+        .start();
+}
 
 // Configurazione modelli personalizzati per i progetti (Indice Progetto: { percorso, scala })
 const customShapesConfig = {
@@ -144,6 +326,7 @@ Object.keys(customShapesConfig).forEach(key => {
     gltfLoader.load(config.path, function (gltf) {
         const model = gltf.scene;
         const positions = [];
+        model.updateMatrixWorld(true);
 
         model.traverse((child) => {
             if (child.isMesh) {
@@ -152,6 +335,7 @@ Object.keys(customShapesConfig).forEach(key => {
                 for (let i = 0; i < posAttr.count; i++) {
                     const v = new THREE.Vector3();
                     v.fromBufferAttribute(posAttr, i);
+                    v.applyMatrix4(child.matrixWorld);
                     positions.push(v);
                 }
             }
@@ -193,6 +377,7 @@ function init() {
     galaxy.rotation.z = THREE.Math.degToRad(10);
 
     scene.add(galaxy);
+    if (model3D && model3D.parent !== galaxy) galaxy.add(model3D);
     
     starGroup = new THREE.Group();
     starGroup.rotation.x = THREE.Math.degToRad(30);
@@ -415,141 +600,149 @@ function createParticles() {
     galaxy.add(interactionPlane);
 }
 
-// --- NEW FUNCTIONS FOR ROCKET TRAIL ---
+// Nastro luminoso continuo, ispirato alle scie dei light cycle di Tron.
 function createRocketTrail() {
     const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(maxTrailParticles * 3);
-    const colors = new Float32Array(maxTrailParticles * 3);
-    
-    // Set usage to DynamicDraw for better performance with frequent updates
+    const vertexCount = MAX_ROCKET_TRAIL_POINTS * 2;
+    const positions = new Float32Array(vertexCount * 3);
+    const colors = new Float32Array(vertexCount * 3);
+    const indices = new Uint16Array((MAX_ROCKET_TRAIL_POINTS - 1) * 6);
+
+    for (let i = 0; i < MAX_ROCKET_TRAIL_POINTS - 1; i++) {
+        const vertex = i * 2;
+        const index = i * 6;
+        indices[index] = vertex;
+        indices[index + 1] = vertex + 1;
+        indices[index + 2] = vertex + 2;
+        indices[index + 3] = vertex + 1;
+        indices[index + 4] = vertex + 3;
+        indices[index + 5] = vertex + 2;
+    }
+
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3).setUsage(THREE.DynamicDrawUsage));
-    
-    const material = new THREE.PointsMaterial({
-        size: 0.4,
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+    geometry.setDrawRange(0, 0);
+
+    const material = new THREE.MeshBasicMaterial({
         vertexColors: true,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         transparent: true,
-        opacity: 1.0
+        opacity: 0.9,
+        side: THREE.DoubleSide
     });
-    
-    trailMesh = new THREE.Points(geometry, material);
+
+    trailMesh = new THREE.Mesh(geometry, material);
+    trailMesh.frustumCulled = false;
+    trailMesh.renderOrder = 3;
+    trailMesh.visible = false;
     galaxy.add(trailMesh);
-    
-    // Initialize particle data
-    for (let i = 0; i < maxTrailParticles; i++) {
-        trailParticlesData.push({
-            life: 0,
-            x: 0, y: 0, z: 0,
-            vx: 0, vy: 0, vz: 0
-        });
+}
+
+function addRocketTrailPoint() {
+    if (!rocketTrailAnchor || !galaxy) return;
+
+    rocketTrailAnchor.getWorldPosition(trailWorldPosition);
+    galaxy.worldToLocal(trailLocalPosition.copy(trailWorldPosition));
+
+    const previous = rocketTrailPoints[rocketTrailPoints.length - 1];
+    if (previous && previous.position.distanceToSquared(trailLocalPosition) < 0.0012) return;
+
+    rocketTrailPoints.push({
+        position: trailLocalPosition.clone(),
+        age: 0
+    });
+
+    if (rocketTrailPoints.length > MAX_ROCKET_TRAIL_POINTS) {
+        rocketTrailPoints.shift();
     }
 }
 
-function updateRocketTrail() {
-    if (!trailMesh || !model3D || !model3D.visible) {
-        if (trailMesh) trailMesh.visible = false;
+function updateRocketTrail(delta) {
+    if (!trailMesh) return;
+
+    for (let i = 0; i < rocketTrailPoints.length; i++) {
+        rocketTrailPoints[i].age += delta;
+    }
+
+    const maximumAge = ROCKET_TRAIL_HOLD + ROCKET_TRAIL_FADE;
+    while (rocketTrailPoints.length && rocketTrailPoints[0].age >= maximumAge) {
+        rocketTrailPoints.shift();
+    }
+
+    if (isRocketEngineActive && model3D && model3D.visible) {
+        addRocketTrailPoint();
+    }
+
+    const pointCount = rocketTrailPoints.length;
+    if (pointCount < 2) {
+        trailMesh.visible = false;
+        trailMesh.geometry.setDrawRange(0, 0);
         return;
     }
+
     trailMesh.visible = true;
-
-    // 1. Get current rocket position in World Space
-    const worldPos = new THREE.Vector3();
-    if (rocketMesh) {
-        rocketMesh.getWorldPosition(worldPos);
-    } else {
-        model3D.getWorldPosition(worldPos);
-    }
-    
-    // 2. Convert to Galaxy Local Space (since trail is child of galaxy)
-    const localPos = galaxy.worldToLocal(worldPos.clone());
-    
-    // 3. Calculate velocity based on movement (for particle inertia)
-    const velocity = localPos.clone().sub(previousRocketPosition);
-    
-    // Prevent huge velocity spikes when model appears/teleports
-    if (velocity.length() > 5) velocity.set(0,0,0);
-
-    // 4. Emit new particles
-    let emitCount = 2; // Particles per frame
-    if (isRocketEngineActive) {
-        for (let i = 0; i < maxTrailParticles; i++) {
-            const p = trailParticlesData[i];
-            if (p.life <= 0 && emitCount > 0) {
-                p.life = 1.5; // Start life
-                // Spawn at rocket position with slight random offset
-                p.x = localPos.x + (Math.random() - 0.5) * 0.5;
-                p.y = localPos.y + (Math.random() - 0.5) * 0.5;
-                p.z = localPos.z + (Math.random() - 0.5) * 0.5;
-                
-                // Velocity: slightly opposite to movement + random spread
-                if (velocity.lengthSq() > 0.000001) {
-                     const dir = velocity.clone().normalize().negate();
-                     p.vx = dir.x * 0.3 + (Math.random() - 0.5) * 0.2;
-                     p.vy = dir.y * 0.3 + (Math.random() - 0.5) * 0.2;
-                     p.vz = dir.z * 0.3 + (Math.random() - 0.5) * 0.2;
-                } else {
-                     p.vx = (Math.random() - 0.5) * 0.1;
-                     p.vy = (Math.random() - 0.5) * 0.1;
-                     p.vz = (Math.random() - 0.5) * 0.1;
-                }
-                emitCount--;
-            }
-        }
-    }
-    
-    // 5. Update existing particles
     const positions = trailMesh.geometry.attributes.position.array;
     const colors = trailMesh.geometry.attributes.color.array;
-    
-    for (let i = 0; i < maxTrailParticles; i++) {
-        const p = trailParticlesData[i];
-        if (p.life > 0) {
-            p.life -= 0.023; // Decay rate
-            p.x += p.vx;
-            p.y += p.vy;
-            p.z += p.vz;
-            
-            positions[i*3] = p.x;
-            positions[i*3+1] = p.y;
-            positions[i*3+2] = p.z;
-            
-            // Color fade: White -> Blue (#2081C3) -> Black
-            if (p.life > 0.5) {
-                const t = (p.life - 0.5) * 2;
-                colors[i*3] = 0.125 + (0.875 * t);   // R
-                colors[i*3+1] = 0.506 + (0.494 * t); // G
-                colors[i*3+2] = 0.765 + (0.235 * t); // B
-            } else {
-                const t = p.life * 2;
-                colors[i*3] = 0.125 * t;   // R
-                colors[i*3+1] = 0.506 * t; // G
-                colors[i*3+2] = 0.765 * t; // B
-            }
-        } else {
-            // Hide dead particles
-            positions[i*3] = 99999; 
-            p.life = 0;
-        }
+
+    camera.getWorldPosition(trailCameraPosition);
+    galaxy.worldToLocal(trailCameraPosition);
+
+    for (let i = 0; i < pointCount; i++) {
+        const point = rocketTrailPoints[i];
+        const previousPoint = rocketTrailPoints[Math.max(0, i - 1)].position;
+        const nextPoint = rocketTrailPoints[Math.min(pointCount - 1, i + 1)].position;
+        const headProgress = i / Math.max(1, pointCount - 1);
+        const fade = point.age <= ROCKET_TRAIL_HOLD
+            ? 1
+            : Math.max(0, 1 - (point.age - ROCKET_TRAIL_HOLD) / ROCKET_TRAIL_FADE);
+
+        trailTangent.subVectors(nextPoint, previousPoint).normalize();
+        trailViewDirection.subVectors(trailCameraPosition, point.position).normalize();
+        trailSide.crossVectors(trailTangent, trailViewDirection);
+        if (trailSide.lengthSq() < 0.0001) trailSide.set(1, 0, 0);
+        trailSide.normalize();
+
+        const width = (0.1575 + 0.54 * Math.pow(headProgress, 0.7)) * (0.35 + 0.65 * fade);
+        trailSide.multiplyScalar(width);
+        trailLeft.copy(point.position).add(trailSide);
+        trailRight.copy(point.position).sub(trailSide);
+
+        const vertexOffset = i * 6;
+        positions[vertexOffset] = trailLeft.x;
+        positions[vertexOffset + 1] = trailLeft.y;
+        positions[vertexOffset + 2] = trailLeft.z;
+        positions[vertexOffset + 3] = trailRight.x;
+        positions[vertexOffset + 4] = trailRight.y;
+        positions[vertexOffset + 5] = trailRight.z;
+
+        // Blu elettrico lungo la scia, fino al bianco in prossimità del motore.
+        const whiteMixRaw = Math.max(0, (headProgress - 0.76) / 0.24);
+        const whiteMix = whiteMixRaw * whiteMixRaw * (3 - 2 * whiteMixRaw);
+        const red = (0.122 + (1 - 0.122) * whiteMix) * fade;
+        const green = (0.318 + (1 - 0.318) * whiteMix) * fade;
+        const blue = fade;
+
+        colors[vertexOffset] = red;
+        colors[vertexOffset + 1] = green;
+        colors[vertexOffset + 2] = blue;
+        colors[vertexOffset + 3] = red;
+        colors[vertexOffset + 4] = green;
+        colors[vertexOffset + 5] = blue;
     }
-    
+
+    trailMesh.geometry.setDrawRange(0, (pointCount - 1) * 6);
     trailMesh.geometry.attributes.position.needsUpdate = true;
     trailMesh.geometry.attributes.color.needsUpdate = true;
-    
-    previousRocketPosition.copy(localPos);
 }
 
 function resetRocketTrail() {
     if (!trailMesh) return;
-    for (let i = 0; i < maxTrailParticles; i++) {
-        trailParticlesData[i].life = 0;
-        const positions = trailMesh.geometry.attributes.position.array;
-        positions[i*3] = 99999;
-    }
-    trailMesh.geometry.attributes.position.needsUpdate = true;
+    rocketTrailPoints.length = 0;
+    trailMesh.geometry.setDrawRange(0, 0);
+    trailMesh.visible = false;
 }
-// --------------------------------------
 
 // Funzione aggiornata per gestire l'hover
 
@@ -1027,20 +1220,50 @@ function prepareShape(shapeIndex) {
     shapeAngle = 0;
     shapeScaleMul = SHAPE_SCALE[shapeIndex] !== undefined ? SHAPE_SCALE[shapeIndex] : 1;
 
-    let maxRadius = 0;
-    let maxY = 0;
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
     for (let i = 0; i < count; i++) {
         const p = points[Math.floor(Math.random() * points.length)];
         shapeBase[i * 3] = p.x;
         shapeBase[i * 3 + 1] = p.y;
         shapeBase[i * 3 + 2] = p.z;
 
-        // Ruotando attorno a Y è il raggio nel piano XZ a poter sbordare
-        maxRadius = Math.max(maxRadius, Math.sqrt(p.x * p.x + p.z * p.z));
-        maxY = Math.max(maxY, Math.abs(p.y));
+        minX = Math.min(minX, p.x);
+        maxX = Math.max(maxX, p.x);
+        minY = Math.min(minY, p.y);
+        maxY = Math.max(maxY, p.y);
+        minZ = Math.min(minZ, p.z);
+        maxZ = Math.max(maxZ, p.z);
+    }
+
+    // Ricentra il campionamento effettivamente visualizzato: in questo modo
+    // il suo bounding box resta agganciato al centro del projectStage anche
+    // quando il campionamento casuale non è perfettamente simmetrico.
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const centerZ = (minZ + maxZ) / 2;
+    let maxRadius = 0;
+    let maxAbsY = 0;
+
+    for (let i = 0; i < count; i++) {
+        const offset = i * 3;
+        shapeBase[offset] -= centerX;
+        shapeBase[offset + 1] -= centerY;
+        shapeBase[offset + 2] -= centerZ;
+
+        // Ruotando attorno a Y è il raggio nel piano XZ a poter sbordare.
+        maxRadius = Math.max(
+            maxRadius,
+            Math.sqrt(shapeBase[offset] ** 2 + shapeBase[offset + 2] ** 2)
+        );
+        maxAbsY = Math.max(maxAbsY, Math.abs(shapeBase[offset + 1]));
     }
     shapeMaxRadiusXZ = maxRadius || 1;
-    shapeMaxY = maxY || 1;
+    shapeMaxY = maxAbsY || 1;
 }
 
 function updateShapeTargets() {
@@ -1130,23 +1353,9 @@ function onClick(event) {
                 showModel(() => {
                     isModelActive = true;
                     isAnimating = false;
-                    // Avvia il timer di 15 secondi
-                    modelTimer = setTimeout(() => {
-                        if (!isAnimating) {
-                            isAnimating = true;
-                            showSphere(() => {
-                                isModelActive = false;
-                                isAnimating = false;
-                            });
-                        }
-                    }, 10000);
                 });
             } else if (centralIntersects[0].object === model3D && isModelActive && !isAnimating) {
                 // Click sul modello 3D
-                if (modelTimer) {
-                    clearTimeout(modelTimer);
-                    modelTimer = null;
-                }
                 isAnimating = true;
                 showSphere(() => {
                     isModelActive = false;
@@ -1230,23 +1439,16 @@ function onMouseWheel(event) {
 }
 
 function showModel(callback) {
+    if (!model3D) return;
+
     animateScale3D(centralSphere, 0, 300, () => {
         centralSphere.visible = false;
         model3D.visible = true;
+        resetRocketMotion();
         resetRocketTrail(); // Reset trail when model appears
         isRocketEngineActive = true;
 
-        // Avvia entrambe le animazioni
-        if (modelAnimation0 && modelAnimation2) {
-            console.log("Avvio animazioni morphTarget 0 e 2");
-            modelAnimation0.reset();
-            modelAnimation2.reset();
-            modelAnimation0.play();
-            modelAnimation2.play();
-        }
-
-        animateScale3D(model3D, 1.8, 300, () => {
-            console.log("Modello completamente visibile e animato");
+        animateScale3D(model3D, ROCKET_VISIBLE_SCALE, 300, () => {
             if (callback) callback();
         });
     });
@@ -1255,10 +1457,8 @@ function showModel(callback) {
 // Modifica la funzione showSphere
 function showSphere(callback) {
     isRocketEngineActive = false;
-    // Ferma l'animazione quando il modello scompare
-    if (modelAnimation) {
-        modelAnimation.stop();
-    }
+    rocketJourneyComplete = true;
+    rocketIsReturning = false;
     animateScale3D(model3D, 0, 300, () => {
         model3D.visible = false;
         centralSphere.visible = true;
@@ -1346,7 +1546,6 @@ function onTouchMove(event) {
 }
 
 let isAnimating = false;
-let modelTimer = null;
 
 function isMobileDevice() {
     return (window.innerWidth <= 768) || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
@@ -1370,26 +1569,15 @@ function animate() {
     starGroup.rotation.y += scrollDelta * 0.1;
     starGroup.rotation.y += touchDeltaX * 0.1;
 
-    const delta = clock.getDelta();
-
-    // Aggiorna il mixer usando il delta calcolato
-    if (mixer) {
-        mixer.update(delta);
-
-        // Debug: verifica se l'animazione è attiva
-        if (modelAnimation && model3D.visible) {
-            if (!modelAnimation.isRunning()) {
-                console.log("Riavvio animazione");
-                modelAnimation.play();
-            }
-        }
-    }
+    // Limita i salti dopo tab inattive o frame molto lenti.
+    const delta = Math.min(clock.getDelta(), 1 / 30);
 
     TWEEN.update();
     updateProjects();
     updateShapeTargets(); // Fa ruotare il modello dentro l'area della scheda
+    updateRocketMotion(delta);
     updateParticles(); // Aggiorna le particelle
-    updateRocketTrail(); // Update the trail every frame
+    updateRocketTrail(delta);
     galaxy.position.y = galaxyPositionY;
 
     // Controllo del raycaster per l'hover (solo desktop)
@@ -1408,24 +1596,10 @@ function animate() {
                     showModel(() => {
                         isModelActive = true;
                         isAnimating = false;
-                        // Avvia il timer (ad esempio 10 secondi)
-                        modelTimer = setTimeout(() => {
-                            if (!isAnimating) {
-                                isAnimating = true;
-                                showSphere(() => {
-                                    isModelActive = false;
-                                    isAnimating = false;
-                                });
-                            }
-                        }, 10000);
                     });
                 }
                 // Se interseca il modello 3D ed è attivo
                 else if (intersects[0].object === model3D && isModelActive && !isAnimating) {
-                    if (modelTimer) {
-                        clearTimeout(modelTimer);
-                        modelTimer = null;
-                    }
                     isAnimating = true;
                     showSphere(() => {
                         isModelActive = false;
@@ -1441,6 +1615,11 @@ function animate() {
 
                 const intersected = projectIntersects[0].object;
                 updateCursorSnap(intersected);
+
+                // Viene verificato a ogni frame di hover: se il cursore arriva
+                // mentre il razzo sta ancora comparendo, il rientro parte non
+                // appena la transizione iniziale è terminata.
+                returnRocketToOriginSmoothly();
 
                 // Effetto Tilt 3D (Parallax)
                 const localPoint = intersected.worldToLocal(projectIntersects[0].point.clone());
