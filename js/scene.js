@@ -86,8 +86,6 @@ let rocketAnimationDuration = 10;
 let rocketAnimationTime = 0;
 let rocketCurveProgress = 0;
 let rocketJourneyComplete = false;
-let rocketIsReturning = false;
-let rocketReturnTween = null;
 const rocketTargetQuaternion = new THREE.Quaternion();
 const rocketQuaternionBuffer = new Float32Array(4);
 const ROCKET_VISIBLE_SCALE = 1.53; // 15% in meno rispetto alla scala precedente (1.8)
@@ -211,14 +209,9 @@ function prepareRocketPath(clip) {
 }
 
 function resetRocketMotion() {
-    if (rocketReturnTween) {
-        rocketReturnTween.stop();
-        rocketReturnTween = null;
-    }
     rocketAnimationTime = 0;
     rocketCurveProgress = 0;
     rocketJourneyComplete = false;
-    rocketIsReturning = false;
     if (!model3D || !rocketCurve) return;
 
     rocketCurve.getPointAt(0, model3D.position);
@@ -229,7 +222,7 @@ function resetRocketMotion() {
 }
 
 function updateRocketMotion(delta) {
-    if (!model3D || !model3D.visible || !rocketCurve || rocketJourneyComplete || rocketIsReturning) return;
+    if (!model3D || !model3D.visible || !rocketCurve || rocketJourneyComplete) return;
 
     rocketAnimationTime += delta;
 
@@ -264,47 +257,21 @@ function updateRocketMotion(delta) {
     }
 }
 
-function returnRocketToOriginSmoothly() {
-    if (!model3D || !model3D.visible || !rocketCurve || !isModelActive || isAnimating || rocketIsReturning) {
+function hideRocketAtCurrentPosition() {
+    if (!model3D || !model3D.visible || !isModelActive || isAnimating) {
         return;
     }
 
-    rocketIsReturning = true;
     isAnimating = true;
     isRocketEngineActive = false;
 
-    const startPosition = model3D.position.clone();
-    const startQuaternion = model3D.quaternion.clone();
-    const destination = rocketCurve.getPointAt(1, new THREE.Vector3());
-    const destinationQuaternion = new THREE.Quaternion();
-
-    if (rocketRotationInterpolant) {
-        const values = rocketRotationInterpolant.evaluate(rocketAnimationDuration);
-        destinationQuaternion.set(values[0], values[1], values[2], values[3]).normalize();
-    } else {
-        destinationQuaternion.copy(startQuaternion);
-    }
-
-    rocketReturnTween = new TWEEN.Tween({ progress: 0 })
-        .to({ progress: 1 }, 850)
-        .easing(TWEEN.Easing.Cubic.InOut)
-        .onUpdate(state => {
-            model3D.position.lerpVectors(startPosition, destination, state.progress);
-            model3D.quaternion.copy(startQuaternion).slerp(destinationQuaternion, state.progress);
-        })
-        .onComplete(() => {
-            rocketReturnTween = null;
-            rocketIsReturning = false;
-            rocketJourneyComplete = true;
-            model3D.position.copy(destination);
-            model3D.quaternion.copy(destinationQuaternion);
-
-            showSphere(() => {
-                isModelActive = false;
-                isAnimating = false;
-            });
-        })
-        .start();
+    rocketJourneyComplete = true;
+    // Usa la stessa chiusura del termine del tracciato, mantenendo però
+    // posizione e orientamento raggiunti in questo istante.
+    showSphere(() => {
+        isModelActive = false;
+        isAnimating = false;
+    });
 }
 
 // Configurazione modelli personalizzati per i progetti (Indice Progetto: { percorso, scala })
@@ -1204,7 +1171,7 @@ const SHAPE_PARTICLE_SIZE = { 2: 0.062 }; // Proj 3 (VOTE): 40% più piccole
 
 // Scala visiva di ciascun modello dentro l'area della scheda
 // (moltiplica la scala di contenimento calcolata automaticamente)
-const SHAPE_SCALE = { 0: 0.8, 1: 0.5, 2: 0.9, 3: 0.8, 4: 0.7, 5: 1 };
+const SHAPE_SCALE = { 0: 0.8, 1: 0.675, 2: 0.9, 3: 0.8, 4: 0.7, 5: 1 };
 let shapeScaleMul = 1;
 
 const shapeMatrix = new THREE.Matrix4();
@@ -1458,7 +1425,6 @@ function showModel(callback) {
 function showSphere(callback) {
     isRocketEngineActive = false;
     rocketJourneyComplete = true;
-    rocketIsReturning = false;
     animateScale3D(model3D, 0, 300, () => {
         model3D.visible = false;
         centralSphere.visible = true;
@@ -1616,10 +1582,9 @@ function animate() {
                 const intersected = projectIntersects[0].object;
                 updateCursorSnap(intersected);
 
-                // Viene verificato a ogni frame di hover: se il cursore arriva
-                // mentre il razzo sta ancora comparendo, il rientro parte non
-                // appena la transizione iniziale è terminata.
-                returnRocketToOriginSmoothly();
+                // Viene verificato a ogni frame: se l'hover inizia durante la
+                // comparsa, il razzo si chiude appena la transizione termina.
+                hideRocketAtCurrentPosition();
 
                 // Effetto Tilt 3D (Parallax)
                 const localPoint = intersected.worldToLocal(projectIntersects[0].point.clone());
