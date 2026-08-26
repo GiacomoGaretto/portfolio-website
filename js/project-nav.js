@@ -1,15 +1,86 @@
 (function () {
     const projects = [
-        { title: 'Digital Forest', url: 'project1.html', image: 'images/previews/data_preview.jpg' },
-        { title: "Falken's Room", url: 'project2.html', image: 'images/previews/falkens_preview.jpg' },
-        { title: 'VOTE', url: 'project3.html', image: 'images/previews/vote_preview.jpg' },
-        { title: 'Chronicles of Ink', url: 'project4.html', image: 'images/previews/chronicles_preview.jpg' },
-        { title: 'Beyondwaste', url: 'project5.html', image: 'images/previews/beyond_preview.jpg' },
-        { title: 'Salotto di Milano', url: 'project6.html', image: 'images/previews/salotto_preview.jpg' }
+        { title: 'Il Corollario', url: 'project1.html', image: 'images/previews/corollario_preview.png' },
+        { title: 'Digital Forest', url: 'project2.html', image: 'images/previews/data_preview.jpg' },
+        { title: "Falken's Room", url: 'project3.html', image: 'images/previews/falkens_preview.jpg' },
+        { title: 'VOTE', url: 'project4.html', image: 'images/previews/vote_preview.jpg' },
+        { title: 'Chronicles of Ink', url: 'project5.html', image: 'images/previews/chronicles_preview.jpg' },
+        { title: 'Beyondwaste', url: 'project6.html', image: 'images/previews/beyond_preview.jpg' },
+        { title: 'Salotto di Milano', url: 'project7.html', image: 'images/previews/salotto_preview.jpg' }
     ];
 
-    const currentMatch = window.location.pathname.match(/project([1-6])\.html$/i);
+    const currentMatch = window.location.pathname.match(/project([1-7])\.html$/i);
     if (!currentMatch) return;
+
+    const projectVideos = Array.from(document.querySelectorAll('#galleria video'));
+
+    projectVideos.forEach((video, index) => {
+        const container = video.parentElement;
+        if (!container) return;
+
+        container.classList.add('project-video');
+
+        const audioToggle = document.createElement('button');
+        audioToggle.className = 'project-audio-toggle';
+        audioToggle.type = 'button';
+        audioToggle.textContent = 'AUDIO';
+        audioToggle.setAttribute('aria-pressed', 'false');
+        audioToggle.setAttribute('aria-label', `Enable audio for video ${index + 1}`);
+        container.appendChild(audioToggle);
+
+        function updateAudioState() {
+            const isAudible = !video.muted && video.volume > 0;
+            audioToggle.classList.toggle('is-active', isAudible);
+            audioToggle.setAttribute('aria-pressed', String(isAudible));
+            audioToggle.setAttribute('aria-label', `${isAudible ? 'Disable' : 'Enable'} audio for video ${index + 1}`);
+        }
+
+        audioToggle.addEventListener('click', async () => {
+            const enableAudio = video.muted || video.volume === 0;
+
+            projectVideos.forEach(otherVideo => {
+                if (otherVideo !== video) otherVideo.muted = true;
+            });
+
+            video.muted = !enableAudio;
+            if (enableAudio && video.volume === 0) video.volume = 1;
+
+            if (enableAudio) {
+                try {
+                    await video.play();
+                } catch (error) {
+                    video.muted = true;
+                }
+            }
+
+            updateAudioState();
+        });
+
+        video.addEventListener('volumechange', updateAudioState);
+        updateAudioState();
+    });
+
+    if ('IntersectionObserver' in window) {
+        const audioVisibilityObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const hasPassedViewportTop = !entry.isIntersecting && entry.boundingClientRect.bottom <= 0;
+
+                if (hasPassedViewportTop && !entry.target.muted) {
+                    entry.target.muted = true;
+                }
+            });
+        }, { threshold: 0 });
+
+        projectVideos.forEach(video => audioVisibilityObserver.observe(video));
+    } else {
+        window.addEventListener('scroll', () => {
+            projectVideos.forEach(video => {
+                if (video.getBoundingClientRect().bottom <= 0 && !video.muted) {
+                    video.muted = true;
+                }
+            });
+        }, { passive: true });
+    }
 
     const currentIndex = Number(currentMatch[1]) - 1;
     const nextIndex = (currentIndex + 1) % projects.length;

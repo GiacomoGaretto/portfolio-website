@@ -1,0 +1,68 @@
+[
+  {
+    "title": "Welcome to Il Corollario",
+    "text": "You’re viewing a real discussion from an online deliberation platform. Instead of scrolling through a long thread, this <strong>Knowledge Graph</strong> shows how ideas connect—so you can spot patterns, tensions, and shared themes.<br><br>An <span class=\"ai-text\">AI</span> helps by analysing the debate and suggesting clusters and keywords. AI can make mistakes—use node details to verify, question, or contest what you see.",
+    "visual": "assets/tutorial/step_01.svg",
+    "focusType": "ALL"
+  },
+  {
+    "title": "Start from the Subject",
+    "text": "The <span class=\"tut-term-subject\">Subject</span> is the main topic of the discussion. Use it as your anchor: every position and argument links back to this core question.",
+    "visual": "assets/tutorial/step_02.svg",
+    "focusType": "SUBJECT",
+    "annotation": "The Main Topic"
+  },
+  {
+    "title": "Compare Positions",
+    "text": "<span class=\"tut-term-position\">Positions</span> are the main viewpoints participants take. Use them to compare perspectives at a glance and see how the debate branches.",
+    "visual": "assets/tutorial/step_03.svg",
+    "focusType": "POSITION",
+    "annotation": "Key Positions"
+  },
+  {
+    "title": "Read the Arguments",
+    "text": "<strong>Arguments</strong> are human contributions written in response to a position. Each author self-classified their contribution as supporting (<span class=\"tut-term-infavor\">IN FAVOR</span>) or challenging (<span class=\"tut-term-against\">AGAINST</span>) that position.<br><br><strong>Tip:</strong> Click a node to read details and trace the contribution back to its source.",
+    "visual": "assets/tutorial/step_04.svg",
+    "focusType": "INFAVOR_AGAINST",
+    "annotation": "Arguments (Pro/Con)"
+  },
+  {
+    "title": "Discover Thematic Clusters",
+    "text": "<span class=\"tut-term-cluster\">Clusters</span> (background areas) are created by <span class=\"ai-text\">AI</span>. It analyses argument content and groups them into themes, helping you notice recurrent concepts across the debate.",
+    "visual": "assets/tutorial/step_05.svg",
+    "focusType": "CLUSTER",
+    "annotation": "Thematic Cluster"
+  },
+  {
+    "title": "Follow Shared Keywords",
+    "text": "<span class=\"tut-term-keyword\">Keywords</span> are relevant terms the <span class=\"ai-text\">AI</span> selected from each argument. When the same term appears across different arguments, it becomes a concept bridge showing where multiple contributions touch the same idea.<br><br>Follow keywords to compare how that concept is used in different parts of the debate.",
+    "visual": "assets/tutorial/step_06.svg",
+    "focusType": "ENTITY",
+    "annotation": "Semantic Bridge"
+  },
+  {
+    "title": "Connections at a Glance",
+    "text": "<strong>Node Size</strong> reflects how much discussion an element generates: larger nodes received more arguments contributions. Size can highlight hotspots, but every position deserves attention, use it as a clue, not a ranking.",
+    "visual": "assets/tutorial/step_07.svg",
+    "focusType": "OUTDEGREE",
+    "annotation": "Highly Connected"
+  },
+  {
+    "title": "Your Personal Notes Space",
+    "text": "As you move through the discussion, you can add <strong>notes</span></strong> and <strong>drawings</span></strong> directly on the canvas to support your analysis and keep track of emerging insights.<br><br>These annotations are <strong>personal</strong>: they are visible only to you and are not shared with anyone else.",
+    "visual": "assets/tutorial/step_08.svg",
+    "focusType": "ALL"
+  },
+  {
+    "title": "<strong><span class=\"ai-text\">AI</span></strong> Role and Human <strong><span class=\"tut-term-against\">Contestability</span></strong>",
+    "text": "<span class=\"ai-text\">AI</span> helps by grouping semantically similar arguments into <span class=\"tut-term-cluster\">clusters</span> and extracting <span class=\"tut-term-keyword\">keywords</span> from argument nodes, making thematic bridges easier to read.<br><br>At the same time, AI can make errors. Human feedback is fundamental to keep this intervention useful and meaningful: when a suggestion appears weak or misleading, open node details and <strong><span class=\"tut-term-against\">contest the AI suggestion</span></strong>.",
+    "visual": "",
+    "focusType": "ALL"
+  },
+  {
+    "title": "Now Explore",
+    "text": "You’re ready. Try these moves:<br><br>• <strong>Click</strong> nodes to read details and trace sources.<br>• Use the <strong>Timeline</strong> to replay how the debate unfolds.<br>• Use <strong>Filters</strong> to surface contested areas, shared keywords, or lone voices.<br>• Add <strong>Personal notes</strong> to capture insights and link what you find.",
+    "visual": "",
+    "focusType": "ALL"
+  }
+]

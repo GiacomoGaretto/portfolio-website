@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Corollario - Interactive Knowledge Graph</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div id="graph-container">
+
+
+
+        <!-- Tutorial Sidebar -->
+        <div id="tutorial-sidebar">
+            <div id="tutorial-header">
+                <div id="tutorial-heading">Tutorial</div>
+                <button id="tutorial-skip">Skip Tutorial</button>
+            </div>
+
+            <div id="tutorial-content"></div>
+
+            <div id="tutorial-footer">
+                <div id="tutorial-stepper"></div>
+                <div id="tutorial-controls">
+                    <button id="tutorial-back" class="tut-btn">← Back</button>
+                    <button id="tutorial-next" class="tut-btn">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM CONTROLS (Search + Nav) -->
+        <div id="controls-wrapper">
+            <!-- SEARCH BAR -->
+            <div id="search-panel" class="nav-hidden">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search topics or keywords...">
+            </div>
+
+            <!-- NavBar -->
+            <div id="depth-nav" class="nav-hidden" data-level="3">
+                <button class="nav-btn" onclick="updateGraphDepth(1)">1. Positions</button>
+                <button class="nav-btn" onclick="updateGraphDepth(2)">2. Arguments</button>
+                <button class="nav-btn active" onclick="updateGraphDepth(3)">3. Full Context</button>
+            </div>
+        </div>
+
+        <!-- TIMELINE PLAYER  -->
+        <div id="timeline-panel" class="nav-hidden">
+            <div class="timeline-header">
+                <div class="timeline-title">Timeline</div>
+                <div id="time-date">Start</div>
+                <div class="timeline-info">
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <div class="timeline-tooltip-text">Observe how the discussion evolves over time.</div>
+                </div>
+            </div>
+            <div class="timeline-controls">
+                <button id="play-btn" class="time-btn">
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                        <path d="M5 3l14 9-14 9V3z"></path>
+                    </svg>
+                </button>
+                <div class="time-slider-wrapper">
+                    <div id="timeline-chart"></div>
+                    <input type="range" id="time-slider" min="0" max="100" value="100" step="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- PERSONAL NOTES PANEL -->
+        <div id="personal-notes-container" class="nav-hidden">
+            <div class="personal-notes-header">Personal Notes</div>
+            <div class="personal-notes-actions">
+                <button id="btn-add-note" class="action-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <use href="assets/icons/addnote-icon.svg"></use>
+                    </svg>
+                    Add Note
+                </button>
+                <button id="btn-draw" class="action-btn">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <use href="assets/icons/draw-icon.svg"></use>
+                    </svg>
+                    Draw
+                </button>
+                <!-- DRAWING TOOLBAR (Hidden by default) -->
+                <div id="drawing-toolbar" style="display: none;">
+                    <button id="draw-pencil" class="draw-tool-btn active">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                            <use href="assets/icons/draw-icon.svg"></use>
+                        </svg>
+                        <div class="draw-tooltip">Pencil</div>
+                    </button>
+                    <button id="draw-eraser" class="draw-tool-btn">
+                        <!-- Eraser Icon -->
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <use href="assets/icons/erase-icon.svg"></use>
+                        </svg>
+                        <div class="draw-tooltip">Eraser</div>
+                    </button>
+                    <button id="draw-undo" class="draw-tool-btn">
+                        <!-- Undo Icon -->
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <use href="assets/icons/undo-icon.svg"></use>
+                        </svg>
+                        <div class="draw-tooltip">Undo</div>
+                    </button>
+                    <button id="draw-trash" class="draw-tool-btn">
+                        <!-- Trash Icon -->
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <use href="assets/icons/delete-icon.svg"></use>
+                        </svg>
+                        <div class="draw-tooltip">Clear All</div>
+                    </button>
+                    <button id="draw-close" class="draw-tool-btn">
+                        <!-- X Icon -->
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <use href="assets/icons/close-icon.svg"></use>
+                        </svg>
+                        <div class="draw-tooltip">Close</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUGGESTED VIEWS -->
+        <div id="suggested-views-container" class="nav-hidden">
+            <div class="suggested-view-header">
+                <span>Suggested Views</span>
+            </div>
+            <div class="suggested-view-row">
+                <span>Most Contested</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-contested">
+                    <span class="slider"></span>
+                </label>
+                <div class="sv-tooltip">
+                    <div class="sv-info-section">
+                        <strong>Most Contested</strong>
+                        <p>How is ‘Most Contested’ calculated?<br>This view highlights the position with the highest number of arguments both in favor and against.</p>
+                        <p class="sv-warning">⚠ These criteria shape what appears as “contested.” Different thresholds would produce different results.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="suggested-view-row">
+                <span>Shared Keywords</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-shared">
+                    <span class="slider"></span>
+                </label>
+                <div class="sv-tooltip">
+                    <div class="sv-info-section">
+                        <strong>Shared Keywords</strong>
+                        <p>How is ‘Shared Keywords’ calculated?<br>This view highlights concepts that appear in multiple arguments, acting as bridges between different viewpoints.</p>
+                        <p>Criteria used:</p>
+                        <ul class="sv-list">
+                            <li>Keyword appears in at least 2 distinct arguments</li>
+                        </ul>
+                        <p class="sv-warning">⚠ These criteria shape what appears as “shared.”</p>
+                    </div>
+                </div>
+            </div>
+            <div class="suggested-view-row">
+                <span>Lone Voices</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-lone">
+                    <span class="slider"></span>
+                </label>
+                <div class="sv-tooltip">
+                    <div class="sv-info-section">
+                        <strong>Lone Voices</strong>
+                        <p>How is ‘Lone Voices’ calculated?<br>This view highlights positions that received no direct arguments, representing isolated or overlooked perspectives.</p>
+                        <p>Criteria used:</p>
+                        <ul class="sv-list">
+                            <li>0 arguments connected</li>
+                            <li>Connected only to the main Subject</li>
+                        </ul>
+                        <p class="sv-warning">⚠ These criteria shape what appears as “lone.”</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MINIMAP -->
+        <div id="minimap-container" class="nav-hidden">
+            <div class="minimap-header">Minimap</div>
+            <svg id="minimap"></svg>
+        </div>
+
+        <!-- THEME TOGGLE BUTTON -->
+        <div id="theme-toggle-container" class="nav-hidden side-control-container">
+            <button id="theme-settings-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <use href="assets/icons/theme-icon.svg"></use>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Theme Settings</div>
+        </div>
+
+        <!-- EXPORT VIEW BUTTON -->
+        <div id="export-view-container" class="nav-hidden side-control-container">
+            <div id="export-menu">
+                <button class="export-opt" onclick="exportGraph('png')">PNG</button>
+                <button class="export-opt" onclick="exportGraph('svg')">SVG</button>
+            </div>
+            <button id="export-view-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <use href="assets/icons/export-icon.svg"></use>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Export View</div>
+        </div>
+
+        <!-- ZOOM IN BUTTON -->
+        <div id="zoom-in-container" class="nav-hidden side-control-container">
+            <button id="zoom-in-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <use href="assets/icons/zoomin-icon.svg"></use>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Zoom In</div>
+        </div>
+
+        <!-- ZOOM OUT BUTTON -->
+        <div id="zoom-out-container" class="nav-hidden side-control-container">
+            <button id="zoom-out-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <use href="assets/icons/zoomout-icon.svg"></use>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Zoom Out</div>
+        </div>
+
+        <!-- RESET VIEW BUTTON -->
+        <div id="reset-view-container" class="nav-hidden side-control-container">
+            <button id="reset-view-btn" class="time-btn">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <use href="assets/icons/resize-icon.svg"></use>
+                </svg>
+            </button>
+            <div class="reset-tooltip">Fit to Screen</div>
+        </div>
+
+        <!-- TOP LEFT CONTROLS (Tutorial + Ledger) -->
+        <div id="top-left-controls">
+            <button id="tutorial-toggle">Open Tutorial</button>
+            <button id="ledger-btn">?</button>
+            <div class="reset-tooltip" id="ledger-tooltip">From data to knowledge</div>
+        </div>
+
+        <!-- LEDGER PANEL (Moved to root for independent positioning) -->
+        <div id="ledger-panel" class="nav-hidden">
+            <div id="ledger-header">
+                <span>From Data to Knowledge</span>
+                <button id="ledger-close-btn">✕</button>
+            </div>
+            <div id="ledger-content"></div>
+        </div>
+
+        <svg id="graph"></svg>
+        <div id="tooltip" class="tooltip" style="opacity: 0;"></div>
+    </div>
+
+    <aside id="info-panel" class="collapsed">
+
+
+        <!-- LEGENDA  -->
+        <div id="legend-card" class="panel-card">
+            <div id="legend-title">
+                <span>Legend</span>
+                <button id="legend-toggle-btn" class="panel-toggle-btn">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <div id="legend">
+                <!-- Sezione 1: Node Types -->
+                <div class="legend-section">
+                    <div class="legend-item">
+                        <div class="legend-symbol">
+                            <div class="symbol-cluster"></div>
+                        </div>
+                        <div class="legend-label-group"><span class="label-main">Cluster Area</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol">
+                            <div class="symbol-inner symbol-circle bg-subject"></div>
+                        </div>
+                        <div class="legend-label-group"><span class="label-main">Subject</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol">
+                            <div class="symbol-inner symbol-circle bg-position"></div>
+                        </div>
+                        <div class="legend-label-group"><span class="label-main">Position</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol">
+                            <div class="symbol-inner symbol-circle bg-infavor"></div>
+                        </div>
+                        <div class="legend-label-group"><span class="label-main">In Favor</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol">
+                            <div class="symbol-inner symbol-circle bg-against"></div>
+                        </div>
+                        <div class="legend-label-group"><span class="label-main">Against</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol">
+                            <div class="symbol-inner symbol-diamond bg-keyword"></div>
+                        </div>
+                        <div class="legend-label-group"><span class="label-main">Keyword</span></div>
+                    </div>
+                </div>
+
+                <div class="legend-divider"></div>
+
+                <!-- Sezione 2: How to Read -->
+                <div class="legend-section">
+                    <div class="section-title">How to read</div>
+                    <div class="legend-item">
+                        <div class="legend-symbol"><svg viewBox="0 0 18 18">
+                                <circle cx="9" cy="9" r="5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg></div>
+                        <div class="legend-label-group"><span class="label-main">Size</span><span
+                                class="label-sub">Number of connections</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol"><svg viewBox="0 0 18 18">
+                                <line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2" />
+                            </svg></div>
+                        <div class="legend-label-group"><span class="label-main">Solid Line</span><span
+                                class="label-sub">Human-contribution link</span></div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol"><svg viewBox="0 0 18 18">
+                                <line x1="3" y1="9" x2="15" y2="9" stroke="currentColor" stroke-width="2"
+                                    stroke-dasharray="3,2" />
+                            </svg></div>
+                        <div class="legend-label-group"><span class="label-main">Dashed Line</span><span
+                                class="label-sub">AI-generated link</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DETAILS -->
+        <div id="details-card" class="panel-card">
+            <div id="details-header">
+                <div id="user-profile-row">
+                    <div id="user-avatar"></div>
+                    <div id="user-name"></div>
+                    <button id="details-close-btn" type="button" aria-label="Close details panel">x</button>
+                </div>
+                <div id="node-types"></div>
+            </div>
+            <div id="details-ai-info">
+                <button id="details-ai-info-toggle" type="button" aria-expanded="false">
+                    <span>AI Role in processing</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                </button>
+                <div id="details-ai-info-content" aria-hidden="true">
+                    <p id="ai-info-text"></p>
+                    <p id="ai-confidence-text"></p>
+                </div>
+            </div>
+            <div id="details-content">
+                <div class="section-title">Content</div>
+                <div id="node-title"></div>
+                <div id="node-text"></div>
+            </div>
+            <div id="details-stats">
+                <div class="section-title">Stats</div>
+                <div id="node-value"></div>
+            </div>
+        </div>
+    </aside>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
