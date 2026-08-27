@@ -1,215 +1,317 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giacomo Garetto - Digital Forest</title>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Giacomo Garetto - Il Corollario</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260827">
 </head>
 
-<body class="project-page">
+<body class="project-page corollario-page inverted-theme">
     <div id="header2">
         <a id="homeBtn" href="index.html">GIACOMO GARETTO</a>
         <div id="scroll-progress"></div>
     </div>
 
     <div id="project-header">
-        <h1>Digital Forest</h1>
-        <p>Four years of human categorization of trail cam footage</p>
+        <h1>Il Corollario</h1>
+        <p>Communication design for human-centred explainable AI in civic deliberation.</p>
     </div>
 
-    <div id="galleria">
-
-        <div class="full-width-media">
+    <main id="galleria">
+        <div class="full-width-media corollario-hero">
             <figure scroll="reveal">
-                <video autoplay loop muted playsinline>
-                    <source src="videos/G6_videoinstallation.mp4" type="video/mp4">
-                    Il tuo browser non supporta il video.
-                </video>
+                <img src="images/COROLLARIO/platform-main.png"
+                    alt="Il Corollario interface mapping positions, arguments, clusters and keywords in a public debate">
             </figure>
         </div>
 
-        <div class="text-block-center">
-            <p>Trail cams are motion-triggered devices used to record animals in their natural habitats. Initially
-                designed for research and wildlife monitoring, these videos have become popular content on social media
-                platforms. Once published, animals are transformed into digital entities, recontextualized within the
-                online ecosystem.</p>
+        <div class="text-block-center corollario-lead">
+            <p>Il Corollario transforms AI-mediated public discussions into explorable maps, making their structure,
+                transformations and sources open to interpretation.</p>
         </div>
 
-        <div class="img-container slide-in">
+        <section class="corollario-research" aria-labelledby="research-frame-title">
+            <h2 id="research-frame-title" class="visually-hidden">Research frame</h2>
+            <div class="corollario-accordion">
+                <details open>
+                    <summary>
+                        <span class="corollario-accordion-index">01</span>
+                        <span class="corollario-accordion-title">Context</span>
+                        <span class="corollario-accordion-toggle" aria-hidden="true"></span>
+                    </summary>
+                    <div class="corollario-accordion-panel">
+                        <div class="corollario-accordion-copy">
+                            <h3>When AI organises a public debate, it also shapes how that debate is understood.</h3>
+                            <p>Clustering, ranking and summarisation can make participation scalable, but their mediation
+                                often remains invisible. The project reframes explainability as a communication design
+                                problem.</p>
+                        </div>
+                        <figure>
+                            <img src="images/COROLLARIO/research-domain.png"
+                                alt="The thesis research domain at the intersection of civic technology, explainable AI and data storytelling">
+                        </figure>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>
+                        <span class="corollario-accordion-index">02</span>
+                        <span class="corollario-accordion-title">Research methodology</span>
+                        <span class="corollario-accordion-toggle" aria-hidden="true"></span>
+                    </summary>
+                    <div class="corollario-accordion-panel corollario-accordion-panel--wide">
+                        <div class="corollario-accordion-copy corollario-accordion-copy--split">
+                            <h3>Research through design connected theory, requirements and a working platform.</h3>
+                            <p>The process moved from the ORBIS context and interdisciplinary research to design,
+                                prototyping and evaluation.</p>
+                        </div>
+                        <figure>
+                            <img src="images/COROLLARIO/research-methodology.png"
+                                alt="Research methodology from the ORBIS context to design, testing and discussion">
+                        </figure>
+                        <div class="corollario-mediation-position">
+                            <figure>
+                                <img src="images/COROLLARIO/mediation-layer.png"
+                                    alt="Communication design as a mediation layer between AI processing and democratic interpretation">
+                            </figure>
+                            <div>
+                                <span>DESIGN POSITION</span>
+                                <h4>Communication design sits between AI mediation and democratic interpretation.</h4>
+                                <p>Narrative, visualisation and interaction become the layer through which automated
+                                    transformations can be read and questioned.</p>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>
+                        <span class="corollario-accordion-index">03</span>
+                        <span class="corollario-accordion-title">Research questions</span>
+                        <span class="corollario-accordion-toggle" aria-hidden="true"></span>
+                    </summary>
+                    <div class="corollario-accordion-panel corollario-accordion-panel--rqs">
+                        <div class="corollario-rq-main">
+                            <span>RQ 00</span>
+                            <h3>How can communication design operationalise Human-Centred Explainable AI for democratic
+                                deliberation?</h3>
+                        </div>
+                        <div class="corollario-rq-specifics">
+                            <article>
+                                <span>RQ 01 — TRANSFORMATION TRANSPARENCY</span>
+                                <h4>What must an AI-mediated pipeline make legible to non-expert publics?</h4>
+                            </article>
+                            <article>
+                                <span>RQ 02 — PLURALITY-PRESERVING SENSEMAKING</span>
+                                <h4>How can visual and narrative scaffolding clarify complexity without closing down
+                                    plurality?</h4>
+                            </article>
+                            <article>
+                                <span>RQ 03 — BEYOND TRUST</span>
+                                <h4>How can explainability support comprehension, legitimacy and contestability?</h4>
+                            </article>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <section class="corollario-before-after" aria-labelledby="before-after-title">
+            <header class="corollario-section-heading">
+                <p class="corollario-kicker">FROM DATA STRUCTURE TO CIVIC INTERFACE</p>
+                <h2 id="before-after-title">The graph became a space for reading.</h2>
+            </header>
+            <div class="corollario-comparison">
+                <figure scroll="reveal">
+                    <img src="images/COROLLARIO/original_kg.png" alt="The original technical knowledge graph">
+                    <figcaption>01 — ORIGINAL KNOWLEDGE GRAPH</figcaption>
+                </figure>
+                <figure scroll="reveal">
+                    <img src="images/COROLLARIO/redesigned_kg.png" alt="The redesigned Il Corollario interface">
+                    <figcaption>02 — COMMUNICATION LAYER</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="corollario-tutorial" aria-labelledby="visual-grammar-title">
+            <header class="corollario-section-heading">
+                <p class="corollario-kicker">VISUAL GRAMMAR</p>
+                <h2 id="visual-grammar-title">Complexity is disclosed one layer at a time.</h2>
+            </header>
+            <div class="corollario-tutorial-grid">
+                <figure scroll="reveal">
+                    <img src="images/COROLLARIO/tutorial/step_01.svg" alt="Tutorial introduction to Il Corollario">
+                    <figcaption>ORIENT</figcaption>
+                </figure>
+                <figure scroll="reveal">
+                    <img src="images/COROLLARIO/tutorial/step_03.svg" alt="Tutorial explanation of position nodes">
+                    <figcaption>STRUCTURE</figcaption>
+                </figure>
+                <figure scroll="reveal">
+                    <img src="images/COROLLARIO/tutorial/step_05.svg" alt="Tutorial explanation of thematic clusters">
+                    <figcaption>GROUP</figcaption>
+                </figure>
+                <figure scroll="reveal">
+                    <img src="images/COROLLARIO/tutorial/step_07.svg" alt="Tutorial explanation of visual hierarchy">
+                    <figcaption>READ</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="corollario-feature" aria-labelledby="feature-orient-title">
+            <div class="corollario-feature-copy">
+                <span>01 — ORIENT</span>
+                <h2 id="feature-orient-title">Build a shared language before entering the graph.</h2>
+            </div>
             <figure scroll="reveal">
-                <img src="images/DATA/data1.jpg" alt="">
+                <img src="images/COROLLARIO/platform-tutorial.png" alt="Il Corollario guided onboarding">
             </figure>
+        </section>
 
-        </div>
-
-        <div class="text-block text-block--labelled">
-            <p>The project examines 273 trail cam videos shared on Italian social platforms (Instagram, Facebook,
-                TikTok, and YouTube) between 2021 and 2024. Hashtags typed into posted video descriptions were
-                considered tools of human categorization. </p>
-        </div>
-
-        <div class="img-row">
-            <div class="img-container slide-in">
-                <figure scroll="reveal">
-                    <img src="images/DATA/data2.jpg" alt="">
-                </figure>
+        <section class="corollario-feature corollario-feature--reverse" aria-labelledby="feature-explore-title">
+            <div class="corollario-feature-copy">
+                <span>02 — EXPLORE</span>
+                <h2 id="feature-explore-title">Move between overview, arguments and full context.</h2>
             </div>
-            <div class="img-container slide-in">
-                <figure scroll="reveal">
-                    <img src="images/DATA/data3.jpg" alt="">
-                </figure>
-            </div>
-        </div>
-
-        <div class="text-block">
-            <p>The installation is divided into two layers of meaning: the animal as a digital object and an inhabitant
-                of a digital forest. These layers are physically reflected through two front screens and a projected
-                backdrop. The top screen shows more than two hours of trail cam footage with its original audio. The
-                lower screen shows data, such as platform, publication date, time, and user.</p>
-        </div>
-
-        <div class="image-right">
             <figure scroll="reveal">
-                <video autoplay loop muted playsinline>
-                    <source src="videos/data2.mp4" type="video/mp4">
-                    Il tuo browser non supporta il video.
-                </video>
+                <img src="images/COROLLARIO/platform-contested.png" alt="Most Contested suggested view in Il Corollario">
             </figure>
-            <div class="text-block">
-                <p>The projection behind the
-                    structure displays a network of hashtags linked to the animals in the footage, with an audio overlay
-                    combining sounds from all videos of the currently featured animal.</p>
+        </section>
+
+        <section class="corollario-feature" aria-labelledby="feature-verify-title">
+            <div class="corollario-feature-copy">
+                <span>03 — VERIFY</span>
+                <h2 id="feature-verify-title">Trace collective patterns back to individual contributions.</h2>
             </div>
-        </div>
+            <figure scroll="reveal">
+                <img src="images/COROLLARIO/platform-detail.png" alt="Contribution detail panel with source link">
+            </figure>
+        </section>
 
-        <div class="img-row">
-            <div class="img-container slide-in">
-                <figure scroll="reveal">
-                    <video autoplay loop muted playsinline>
-                        <source src="videos/Network 4.mp4" type="video/mp4">
-                        Il tuo browser non supporta il video.
-                    </video>
-                </figure>
+        <section class="corollario-feature corollario-feature--reverse" aria-labelledby="feature-question-title">
+            <div class="corollario-feature-copy">
+                <span>04 — QUESTION THE AI</span>
+                <h2 id="feature-question-title">Expose what happened between public input and visual output.</h2>
             </div>
-            <div class="img-container slide-in">
-                <figure scroll="reveal">
-                    <img src="images/DATA/12Network.gif" alt="">
-                </figure>
-            </div>
-        </div>
+            <figure scroll="reveal">
+                <img src="images/COROLLARIO/platform-pipeline.png" alt="From Data to Knowledge disclosure panel">
+            </figure>
+        </section>
 
-        <div class="text-block text-block--labelled">
-            <p>This creates a growing network that mirrors the evolution of a digital forest, blending human
-                perceptions and animal presence over time.</p>
-        </div>
-
-        <div class="img-row">
-            <div class="img-container slide-in">
-                <figure scroll="reveal">
-                    <img src="images/DATA/46.png" alt="">
-                </figure>
-            </div>
-            <div class="img-container slide-in">
-                <figure scroll="reveal">
-                    <img src="images/DATA/41.png" alt="">
-                </figure>
-            </div>
-        </div>
-
-        <div class="text-block text-block--wide-right">
-            <p>The structure was custom-built using supports that allowed for great customization, enabling the
-                installation of two screens on the front and housing the RaspBerry board and speakers at the back.</p>
-        </div>
-
-        <div class="image-double">
-            <div class="img-container">
-                <figure scroll="reveal">
-                    <img src="images/DATA/18Structure.jpg" alt="">
-                </figure>
-            </div>
-            <div class="img-container">
-                <figure scroll="reveal">
-                    <img src="images/DATA/8.jpg" alt="">
-                </figure>
-            </div>
-        </div>
-
-
-    </div>
-
-    <!-- Crediti di progetto temporaneamente disattivati.
-    <footer class="crediti">
-        <div class="container">
-            <div class="crediti-content">
-                <div class="crediti-column">
-                    <p class="crediti-title">TEAM</p>
+        <section class="corollario-live-demo" aria-labelledby="live-demo-title">
+            <header class="corollario-live-heading">
+                <div>
+                    <p class="corollario-kicker">LIVE DESKTOP PROTOTYPE</p>
+                    <h2 id="live-demo-title">Explore the discussion.</h2>
                 </div>
-                <div class="crediti-column">
-                    <p>Emanuel Simionato</p>
-                    <p>Francesco Scarfone</p>
-                    <p>Federico Gajo</p>
-                </div>
-                <div class="crediti-column">
-                    <p>Giacomo Garetto</p>
-                    <p>Miguel Amaya </p>
-                </div>
-                <div class="crediti-column">
-                    <p class="crediti-title">CLIENT</p>
-                </div>
-                <div class="crediti-column">
-                    <p>Politecnico di Milano</p>
-                    <p>MEET Digital Culture Center</p>
-                </div>
+                <a href="ilcorollario-demo/index.html" target="_blank" rel="noopener">OPEN FULLSCREEN ↗</a>
+            </header>
+            <div class="corollario-live-frame">
+                <iframe data-src="ilcorollario-demo/index.html" title="Interactive Il Corollario prototype"
+                    loading="lazy"></iframe>
             </div>
-        </div>
-    </footer>
-    -->
+        </section>
 
+        <nav class="corollario-links" aria-label="Il Corollario project links">
+            <a href="ilcorollario-demo/index.html" target="_blank" rel="noopener">
+                <span>LIVE PROTOTYPE</span><span>↗</span>
+            </a>
+            <a href="https://github.com/GiacomoGaretto/IlCorollario" target="_blank" rel="noopener">
+                <span>GITHUB REPOSITORY</span><span>↗</span>
+            </a>
+        </nav>
+    </main>
 
     <script>
         function updateScrollProgress() {
-            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            let scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let scrollPercentage = (scrollTop / scrollHeight) * 100;
-            document.getElementById("scroll-progress").style.width = scrollPercentage + "%";
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrollPercentage = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+            document.getElementById('scroll-progress').style.width = scrollPercentage + '%';
         }
 
-        // Assegniamo la funzione all'evento scroll
-        window.addEventListener("scroll", updateScrollProgress);
-
-        // Eseguiamo la funzione una volta al caricamento della pagina
-        document.addEventListener("DOMContentLoaded", updateScrollProgress);
-    </script>
-
-
-    <script>
         function revealOnScroll() {
-            let elements = document.querySelectorAll('.img-container, .text-block, .text-block-center, figure[scroll="reveal"]');
-            let windowHeight = window.innerHeight;
-            let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-            let scrollHeight = document.documentElement.scrollHeight - windowHeight;
+            const elements = document.querySelectorAll('.img-container, .text-block, .text-block-center, figure[scroll="reveal"]');
+            const windowHeight = window.innerHeight;
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - windowHeight;
 
-            elements.forEach(el => {
-                let position = el.getBoundingClientRect().top;
-
-                // Se l'elemento è visibile nel viewport o lo scroll è al 100%, lo mostriamo
-                if (position < windowHeight * 0.85 || scrollTop >= scrollHeight) {
-                    el.classList.add('show');
+            elements.forEach((element) => {
+                const position = element.getBoundingClientRect().top;
+                if (position < windowHeight * 0.88 || scrollTop >= scrollHeight) {
+                    element.classList.add('show');
                 }
             });
         }
 
-        document.addEventListener("scroll", revealOnScroll);
-        document.addEventListener("DOMContentLoaded", revealOnScroll);
-    </script>
+        window.addEventListener('scroll', updateScrollProgress, { passive: true });
+        window.addEventListener('scroll', revealOnScroll, { passive: true });
+        document.addEventListener('DOMContentLoaded', () => {
+            updateScrollProgress();
+            revealOnScroll();
 
-    <script src="js/project-nav.js"></script>
+            const accordionItems = document.querySelectorAll('.corollario-accordion details');
+
+            accordionItems.forEach((item) => {
+                const summary = item.querySelector('summary');
+                item.addEventListener('animationend', (event) => {
+                    if (event.animationName === 'corollario-accordion-open') {
+                        item.classList.remove('is-opening');
+                    }
+                });
+
+                summary.addEventListener('click', (event) => {
+                    event.preventDefault();
+
+                    const summaryTop = summary.getBoundingClientRect().top;
+                    const shouldOpen = !item.open;
+
+                    accordionItems.forEach((otherItem) => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('is-opening');
+                            otherItem.open = false;
+                        }
+                    });
+
+                    item.classList.remove('is-opening');
+                    item.open = shouldOpen;
+
+                    const positionDelta = summary.getBoundingClientRect().top - summaryTop;
+                    if (Math.abs(positionDelta) > 0.5) {
+                        window.scrollBy(0, positionDelta);
+                    }
+
+                    if (shouldOpen) {
+                        requestAnimationFrame(() => {
+                            if (item.open) item.classList.add('is-opening');
+                        });
+                    }
+                });
+            });
+
+            const demoFrame = document.querySelector('.corollario-live-frame iframe');
+            const desktopViewport = window.matchMedia('(min-width: 769px)');
+            const syncDemoFrame = (event) => {
+                if (!demoFrame) return;
+                if (event.matches && !demoFrame.getAttribute('src')) {
+                    demoFrame.setAttribute('src', demoFrame.dataset.src);
+                } else if (!event.matches && demoFrame.getAttribute('src')) {
+                    demoFrame.removeAttribute('src');
+                }
+            };
+
+            syncDemoFrame(desktopViewport);
+            desktopViewport.addEventListener('change', syncDemoFrame);
+        });
+    </script>
+    <script src="js/project-nav.js?v=20260827"></script>
 </body>
+
 </html>

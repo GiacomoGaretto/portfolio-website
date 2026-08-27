@@ -43,14 +43,19 @@ const targetCentralScale = 4; // Imposta la scala desiderata per l'hover
 
 
 // Aggiungi le descrizioni ai dati dei progetti
-const projectsData = [
-    { name: "Proj 1", projectName: "Digital Forest", info: "22/11/2025", coords: "RA 04h21m · DEC +19°32′", hoverImage: "images/previews/data_preview.jpg", anteImg: "images/ante/data_ante.jpg", description: "The project analyzes 273 trail cam videos from Italian social platforms (2021-2024), exploring hashtags as tools of human categorization. The installation arranges videos chronologically with their hashtags, forming a growing network that reflects the evolving interplay between human perception and animal presence in a digital forest.", url: "project1.html" },
-    { name: "Proj 2", projectName: "Falken's Room", info: "12/09/2022", coords: "RA 17h58m · DEC −22°41′", hoverImage: "images/previews/falkens_preview.jpg", anteImg: "images/ante/falk_ante.jpg", description: "This thesis analyzes interactive installations through a practical case study, exploring their development, communication potential, and challenges. The study focuses on a 3D interactive installation inspired by 80s arcade games, designed and showcased at the Graphic Days 2022 festival.", url: "project2.html" },
-    { name: "Proj 3", projectName: "VOTE", info: "25/06/2024", coords: "RA 09h12m · DEC +45°08′", hoverImage: "images/previews/vote_preview.jpg", anteImg: "images/ante/vote_ante.jpg", description: "Vote is an interactive experience designed to actively engage students in a reflection on the value of voting and democratic representation. Developed within the Interaction Design Studio course at the Politecnico di Milano, the project addresses the growing disinterest in electoral participation, especially among young people.", url: "project3.html" },
-    { name: "Proj 4", projectName: "Chronicles of Ink", info: "01/07/2024", coords: "RA 21h33m · DEC −05°17′", hoverImage: "images/previews/chronicles_preview.jpg", anteImg: "images/ante/chron_ante.jpg", description: "The Chronicles of Ink is an Interactive Digital Narrative experience that explores social judgement and self-exploration through the metaphorical fantasy world of Talea. The project aims to raise awareness of the social double standard towards tattoos by examining how the perception of these art forms varies culturally and socially.", url: "project4.html" },
-    { name: "Proj 5", projectName: "Beyondwaste", info: "27/02/2025", coords: "RA 12h47m · DEC +62°55′", hoverImage: "images/previews/beyond_preview.jpg", anteImg: "images/ante/beyond_ante.jpg", description: "Beyondwaste is a presentation event designed by LATTER Studio for the innovative E-Trash bin concept. I contributed to the project by creating high-quality 3D visuals for the event's launch campaign. ", url: "project5.html" },
-    { name: "Proj 6", projectName: "Salotto di Milano", info: "15/01/2024", coords: "RA 06h05m · DEC +31°24′", hoverImage: "images/previews/salotto_preview.jpg", anteImg: "images/ante/salotto_ante.jpg", description: "The Salotto di Milano stands as an intersection of art, technology and culture. It is a journey that redefines how we all interact in the digital age, expanding the heart of Milano in the digital space.", url: "project6.html" },
+const projectCatalog = [
+    { published: false, shapeIndex: 0, projectName: "Il Corollario", info: "16/03/2026", coords: "RA 18h26m · DEC +45°04′", hoverImage: "images/previews/corollario_preview.png", anteImg: "images/ante/corollario_ante.png", description: "Il Corollario is an interactive knowledge graph that makes AI-mediated public deliberation readable, traceable and contestable through visualisation, narrative scaffolding and progressive disclosure.", url: "project1.html" },
+    { shapeIndex: 1, projectName: "Digital Forest", info: "22/11/2025", coords: "RA 04h21m · DEC +19°32′", hoverImage: "images/previews/data_preview.jpg", anteImg: "images/ante/data_ante.jpg", description: "The project analyzes 273 trail cam videos from Italian social platforms (2021-2024), exploring hashtags as tools of human categorization. The installation arranges videos chronologically with their hashtags, forming a growing network that reflects the evolving interplay between human perception and animal presence in a digital forest.", url: "project2.html" },
+    { shapeIndex: 2, projectName: "Falken's Room", info: "12/09/2022", coords: "RA 17h58m · DEC −22°41′", hoverImage: "images/previews/falkens_preview.jpg", anteImg: "images/ante/falk_ante.jpg", description: "This thesis analyzes interactive installations through a practical case study, exploring their development, communication potential, and challenges. The study focuses on a 3D interactive installation inspired by 80s arcade games, designed and showcased at the Graphic Days 2022 festival.", url: "project3.html" },
+    { shapeIndex: 3, projectName: "VOTE", info: "25/06/2024", coords: "RA 09h12m · DEC +45°08′", hoverImage: "images/previews/vote_preview.jpg", anteImg: "images/ante/vote_ante.jpg", description: "Vote is an interactive experience designed to actively engage students in a reflection on the value of voting and democratic representation. Developed within the Interaction Design Studio course at the Politecnico di Milano, the project addresses the growing disinterest in electoral participation, especially among young people.", url: "project4.html" },
+    { shapeIndex: 4, projectName: "Chronicles of Ink", info: "01/07/2024", coords: "RA 21h33m · DEC −05°17′", hoverImage: "images/previews/chronicles_preview.jpg", anteImg: "images/ante/chron_ante.jpg", description: "The Chronicles of Ink is an Interactive Digital Narrative experience that explores social judgement and self-exploration through the metaphorical fantasy world of Talea. The project aims to raise awareness of the social double standard towards tattoos by examining how the perception of these art forms varies culturally and socially.", url: "project5.html" },
+    { shapeIndex: 5, projectName: "Beyondwaste", info: "27/02/2025", coords: "RA 12h47m · DEC +62°55′", hoverImage: "images/previews/beyond_preview.jpg", anteImg: "images/ante/beyond_ante.jpg", description: "Beyondwaste is a presentation event designed by LATTER Studio for the innovative E-Trash bin concept. I contributed to the project by creating high-quality 3D visuals for the event's launch campaign. ", url: "project6.html" },
+    { shapeIndex: 6, projectName: "Salotto di Milano", info: "15/01/2024", coords: "RA 06h05m · DEC +31°24′", hoverImage: "images/previews/salotto_preview.jpg", anteImg: "images/ante/salotto_ante.jpg", description: "The Salotto di Milano stands as an intersection of art, technology and culture. It is a journey that redefines how we all interact in the digital age, expanding the heart of Milano in the digital space.", url: "project7.html" },
 ];
+
+const projectsData = projectCatalog
+    .filter(project => project.published !== false)
+    .map((project, index) => ({ ...project, name: `Proj ${index + 1}` }));
 
 const rings = [];
 const projectsMeshes = [];
@@ -66,7 +71,7 @@ let interactionPlane; // Piano invisibile per il raycasting del mouse sulla gala
 
 let INTERSECTED = null;
 
-const ringDistance = 6;
+const ringDistance = 5.2;
 // Gli anelli restano un livello di sfondo: le etichette hanno la precedenza visiva
 const RING_IDLE_OPACITY = 0.45;
 // Opacità dei progetti non selezionati durante l'hover
@@ -264,8 +269,8 @@ function hideRocketAtCurrentPosition() {
 
     isAnimating = true;
     isRocketEngineActive = false;
-
     rocketJourneyComplete = true;
+
     // Usa la stessa chiusura del termine del tracciato, mantenendo però
     // posizione e orientamento raggiunti in questo istante.
     showSphere(() => {
@@ -276,12 +281,12 @@ function hideRocketAtCurrentPosition() {
 
 // Configurazione modelli personalizzati per i progetti (Indice Progetto: { percorso, scala })
 const customShapesConfig = {
-    0: { path: '3DCenter/proj1.glb', scale: 65 }, // Progetto 1 (indice 0)
-    1: { path: '3DCenter/proj2.glb', scale: 50 }, // Progetto 2
-    2: { path: '3DCenter/proj3.glb', scale: 50 }, // Progetto 3
-    3: { path: '3DCenter/proj4.glb', scale: 50 }, // Progetto
-    4: { path: '3DCenter/proj5.glb', scale: 40 }, // Progetto
-    5: { path: '3DCenter/proj6.glb', scale: 90 } // Progetto 6 (indice 5)
+    1: { path: '3DCenter/proj1.glb', scale: 65 }, // Digital Forest
+    2: { path: '3DCenter/proj2.glb', scale: 50 }, // Falken's Room
+    3: { path: '3DCenter/proj3.glb', scale: 50 }, // VOTE
+    4: { path: '3DCenter/proj4.glb', scale: 50 }, // Chronicles of Ink
+    5: { path: '3DCenter/proj5.glb', scale: 40 }, // Beyondwaste
+    6: { path: '3DCenter/proj6.glb', scale: 90 } // Salotto di Milano
     // Aggiungi qui altri progetti: es. 0: { path: 'modelli/altro.glb', scale: 20 }
 };
 
@@ -478,6 +483,7 @@ function createProject(projectData, ringIndex) {
         projectName: projectData.projectName,
         info: projectData.info,
         coords: projectData.coords,
+        shapeIndex: projectData.shapeIndex,
         url: projectData.url, // Associa l'URL del progetto
         originalMaterial: projectMaterial,
         outlineMaterial: new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }),
@@ -818,6 +824,15 @@ function createPreviewImage(hoverImage) {
         (err) => { console.error(`Error loading image ${hoverImage}`, err); }
     );
 
+    // La cover del Corollario include un margine bianco nel file sorgente:
+    // ritagliamo la texture sulle tangenti del disco blu per farlo coincidere
+    // con la circonferenza geometrica dell'anteprima.
+    if (hoverImage.includes('corollario_preview')) {
+        texture.repeat.set(0.755, 0.734);
+        texture.offset.set(0.119, 0.134);
+        texture.needsUpdate = true;
+    }
+
     const material = new THREE.MeshBasicMaterial({
         map: texture,
         side: THREE.DoubleSide,
@@ -1119,6 +1134,61 @@ function updateParticles() {
 function getShapePoints(shapeIndex) {
     if (loadedShapes[shapeIndex]) return loadedShapes[shapeIndex];
 
+    // Il Corollario: una costellazione gerarchica costruita direttamente
+    // in Three.js, coerente con il knowledge graph della piattaforma.
+    if (shapeIndex === 0) {
+        const points = [];
+        const nodes = [];
+        const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+        function addNode(position, radius, count) {
+            nodes.push(position);
+            for (let i = 0; i < count; i++) {
+                const y = 1 - (i / Math.max(1, count - 1)) * 2;
+                const radial = Math.sqrt(Math.max(0, 1 - y * y));
+                const angle = goldenAngle * i;
+                points.push(new THREE.Vector3(
+                    position.x + Math.cos(angle) * radial * radius,
+                    position.y + y * radius,
+                    position.z + Math.sin(angle) * radial * radius
+                ));
+            }
+        }
+
+        function addEdge(start, end, count = 22) {
+            for (let i = 0; i < count; i++) {
+                points.push(start.clone().lerp(end, i / Math.max(1, count - 1)));
+            }
+        }
+
+        const subject = new THREE.Vector3(0, 0, 0);
+        addNode(subject, 5.2, 120);
+
+        for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            const position = new THREE.Vector3(
+                Math.cos(angle) * 25,
+                Math.sin(angle) * 18,
+                (i % 2 === 0 ? -1 : 1) * 1.5
+            );
+            addNode(position, 3.3, 45);
+            addEdge(subject, position, 60);
+
+            for (let j = 0; j < 3; j++) {
+                const spread = angle + (j - 1) * 0.28;
+                const child = new THREE.Vector3(
+                    position.x + Math.cos(spread) * (13 + j * 2),
+                    position.y + Math.sin(spread) * (10 + j * 2),
+                    (j - 1) * 1.5
+                );
+                addNode(child, 1.7, 20);
+                addEdge(position, child, 35);
+            }
+        }
+
+        return points;
+    }
+
     // Ripiego geometrico se il modello del progetto non è (ancora) caricato
     const size = 35;
     let geometry;
@@ -1167,11 +1237,11 @@ const SHAPE_SPIN = 0.00187;   // ~56 secondi per giro completo
 // Dimensione delle particelle mentre compongono il modello nella scheda,
 // con override per i modelli che risultano troppo densi
 const SHAPE_PARTICLE_SIZE_DEFAULT = 0.104;
-const SHAPE_PARTICLE_SIZE = { 2: 0.062 }; // Proj 3 (VOTE): 40% più piccole
+const SHAPE_PARTICLE_SIZE = { 3: 0.062 }; // VOTE: particelle 40% più piccole
 
 // Scala visiva di ciascun modello dentro l'area della scheda
 // (moltiplica la scala di contenimento calcolata automaticamente)
-const SHAPE_SCALE = { 0: 0.8, 1: 0.675, 2: 0.9, 3: 0.8, 4: 0.7, 5: 1 };
+const SHAPE_SCALE = { 0: 0.92, 1: 0.8, 2: 0.675, 3: 0.9, 4: 0.8, 5: 0.7, 6: 1 };
 let shapeScaleMul = 1;
 
 const shapeMatrix = new THREE.Matrix4();
@@ -1617,7 +1687,8 @@ function animate() {
                     
                     // Prepara il modello a particelle del progetto: verrà
                     // posizionato e fatto ruotare dentro l'area della scheda
-                    const shapeIndex = projectsMeshes.indexOf(INTERSECTED);
+                    const projectIndex = projectsMeshes.indexOf(INTERSECTED);
+                    const shapeIndex = INTERSECTED.userData.shapeIndex ?? projectIndex;
                     prepareShape(shapeIndex);
 
                     const shapeParticleSize = SHAPE_PARTICLE_SIZE[shapeIndex] !== undefined
