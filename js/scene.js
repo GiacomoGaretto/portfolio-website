@@ -43,15 +43,19 @@ const targetCentralScale = 4; // Imposta la scala desiderata per l'hover
 
 
 // Aggiungi le descrizioni ai dati dei progetti
-const projectsData = [
-    { name: "Proj 1", projectName: "Il Corollario", info: "16/03/2026", coords: "RA 18h26m · DEC +45°04′", hoverImage: "images/previews/corollario_preview.png", anteImg: "images/ante/corollario_ante.png", description: "Il Corollario is an interactive knowledge graph that makes AI-mediated public deliberation readable, traceable and contestable through visualisation, narrative scaffolding and progressive disclosure.", url: "project1.html" },
-    { name: "Proj 2", projectName: "Digital Forest", info: "22/11/2025", coords: "RA 04h21m · DEC +19°32′", hoverImage: "images/previews/data_preview.jpg", anteImg: "images/ante/data_ante.jpg", description: "The project analyzes 273 trail cam videos from Italian social platforms (2021-2024), exploring hashtags as tools of human categorization. The installation arranges videos chronologically with their hashtags, forming a growing network that reflects the evolving interplay between human perception and animal presence in a digital forest.", url: "project2.html" },
-    { name: "Proj 3", projectName: "Falken's Room", info: "12/09/2022", coords: "RA 17h58m · DEC −22°41′", hoverImage: "images/previews/falkens_preview.jpg", anteImg: "images/ante/falk_ante.jpg", description: "This thesis analyzes interactive installations through a practical case study, exploring their development, communication potential, and challenges. The study focuses on a 3D interactive installation inspired by 80s arcade games, designed and showcased at the Graphic Days 2022 festival.", url: "project3.html" },
-    { name: "Proj 4", projectName: "VOTE", info: "25/06/2024", coords: "RA 09h12m · DEC +45°08′", hoverImage: "images/previews/vote_preview.jpg", anteImg: "images/ante/vote_ante.jpg", description: "Vote is an interactive experience designed to actively engage students in a reflection on the value of voting and democratic representation. Developed within the Interaction Design Studio course at the Politecnico di Milano, the project addresses the growing disinterest in electoral participation, especially among young people.", url: "project4.html" },
-    { name: "Proj 5", projectName: "Chronicles of Ink", info: "01/07/2024", coords: "RA 21h33m · DEC −05°17′", hoverImage: "images/previews/chronicles_preview.jpg", anteImg: "images/ante/chron_ante.jpg", description: "The Chronicles of Ink is an Interactive Digital Narrative experience that explores social judgement and self-exploration through the metaphorical fantasy world of Talea. The project aims to raise awareness of the social double standard towards tattoos by examining how the perception of these art forms varies culturally and socially.", url: "project5.html" },
-    { name: "Proj 6", projectName: "Beyondwaste", info: "27/02/2025", coords: "RA 12h47m · DEC +62°55′", hoverImage: "images/previews/beyond_preview.jpg", anteImg: "images/ante/beyond_ante.jpg", description: "Beyondwaste is a presentation event designed by LATTER Studio for the innovative E-Trash bin concept. I contributed to the project by creating high-quality 3D visuals for the event's launch campaign. ", url: "project6.html" },
-    { name: "Proj 7", projectName: "Salotto di Milano", info: "15/01/2024", coords: "RA 06h05m · DEC +31°24′", hoverImage: "images/previews/salotto_preview.jpg", anteImg: "images/ante/salotto_ante.jpg", description: "The Salotto di Milano stands as an intersection of art, technology and culture. It is a journey that redefines how we all interact in the digital age, expanding the heart of Milano in the digital space.", url: "project7.html" },
+const projectCatalog = [
+    { published: false, shapeIndex: 0, projectName: "Il Corollario", info: "16/03/2026", coords: "RA 18h26m · DEC +45°04′", hoverImage: "images/previews/corollario_preview.png", anteImg: "images/ante/corollario_ante.png", description: "Il Corollario is an interactive knowledge graph that makes AI-mediated public deliberation readable, traceable and contestable through visualisation, narrative scaffolding and progressive disclosure.", url: "project1.html" },
+    { shapeIndex: 1, projectName: "Digital Forest", info: "22/11/2025", coords: "RA 04h21m · DEC +19°32′", hoverImage: "images/previews/data_preview.jpg", anteImg: "images/ante/data_ante.jpg", description: "The project analyzes 273 trail cam videos from Italian social platforms (2021-2024), exploring hashtags as tools of human categorization. The installation arranges videos chronologically with their hashtags, forming a growing network that reflects the evolving interplay between human perception and animal presence in a digital forest.", url: "project2.html" },
+    { shapeIndex: 2, projectName: "Falken's Room", info: "12/09/2022", coords: "RA 17h58m · DEC −22°41′", hoverImage: "images/previews/falkens_preview.jpg", anteImg: "images/ante/falk_ante.jpg", description: "This thesis analyzes interactive installations through a practical case study, exploring their development, communication potential, and challenges. The study focuses on a 3D interactive installation inspired by 80s arcade games, designed and showcased at the Graphic Days 2022 festival.", url: "project3.html" },
+    { shapeIndex: 3, projectName: "VOTE", info: "25/06/2024", coords: "RA 09h12m · DEC +45°08′", hoverImage: "images/previews/vote_preview.jpg", anteImg: "images/ante/vote_ante.jpg", description: "Vote is an interactive experience designed to actively engage students in a reflection on the value of voting and democratic representation. Developed within the Interaction Design Studio course at the Politecnico di Milano, the project addresses the growing disinterest in electoral participation, especially among young people.", url: "project4.html" },
+    { shapeIndex: 4, projectName: "Chronicles of Ink", info: "01/07/2024", coords: "RA 21h33m · DEC −05°17′", hoverImage: "images/previews/chronicles_preview.jpg", anteImg: "images/ante/chron_ante.jpg", description: "The Chronicles of Ink is an Interactive Digital Narrative experience that explores social judgement and self-exploration through the metaphorical fantasy world of Talea. The project aims to raise awareness of the social double standard towards tattoos by examining how the perception of these art forms varies culturally and socially.", url: "project5.html" },
+    { shapeIndex: 5, projectName: "Beyondwaste", info: "27/02/2025", coords: "RA 12h47m · DEC +62°55′", hoverImage: "images/previews/beyond_preview.jpg", anteImg: "images/ante/beyond_ante.jpg", description: "Beyondwaste is a presentation event designed by LATTER Studio for the innovative E-Trash bin concept. I contributed to the project by creating high-quality 3D visuals for the event's launch campaign. ", url: "project6.html" },
+    { shapeIndex: 6, projectName: "Salotto di Milano", info: "15/01/2024", coords: "RA 06h05m · DEC +31°24′", hoverImage: "images/previews/salotto_preview.jpg", anteImg: "images/ante/salotto_ante.jpg", description: "The Salotto di Milano stands as an intersection of art, technology and culture. It is a journey that redefines how we all interact in the digital age, expanding the heart of Milano in the digital space.", url: "project7.html" },
 ];
+
+const projectsData = projectCatalog
+    .filter(project => project.published !== false)
+    .map((project, index) => ({ ...project, name: `Proj ${index + 1}` }));
 
 const rings = [];
 const projectsMeshes = [];
@@ -479,6 +483,7 @@ function createProject(projectData, ringIndex) {
         projectName: projectData.projectName,
         info: projectData.info,
         coords: projectData.coords,
+        shapeIndex: projectData.shapeIndex,
         url: projectData.url, // Associa l'URL del progetto
         originalMaterial: projectMaterial,
         outlineMaterial: new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }),
@@ -1682,7 +1687,8 @@ function animate() {
                     
                     // Prepara il modello a particelle del progetto: verrà
                     // posizionato e fatto ruotare dentro l'area della scheda
-                    const shapeIndex = projectsMeshes.indexOf(INTERSECTED);
+                    const projectIndex = projectsMeshes.indexOf(INTERSECTED);
+                    const shapeIndex = INTERSECTED.userData.shapeIndex ?? projectIndex;
                     prepareShape(shapeIndex);
 
                     const shapeParticleSize = SHAPE_PARTICLE_SIZE[shapeIndex] !== undefined

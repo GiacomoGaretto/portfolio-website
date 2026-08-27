@@ -1557,28 +1557,43 @@ figure[scroll="reveal"].show {
         width: 100%;
     }
 
-    /* Dispone immagini affiancate in verticale */
+    /* Su mobile ogni composizione editoriale diventa una pila reale.
+       Il flex layout neutralizza anche le coordinate di griglia desktop
+       assegnate ai singoli elementi (prima/ultima immagine, blocchi 3-up). */
     .img-row,
     .image-triple,
     .image-double {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        row-gap: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .img-row .img-container,
     .image-triple .img-container,
     .image-double > .img-container:nth-child(1),
     .image-double > .img-container:nth-child(2) {
-        grid-column: 1;
-        grid-row: auto;
+        flex: 0 0 auto;
         width: 100% !important;
     }
 
+    #galleria .img-container,
+    #galleria figure,
+    #galleria figure > img,
+    #galleria figure > video {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #galleria figure > img,
+    #galleria figure > video {
+        display: block;
+        height: auto;
+    }
+
     .image-double__copy {
-        grid-column: 1;
-        grid-row: auto;
+        flex: 0 0 auto;
         align-self: start;
+        width: 100%;
         padding-top: 14px;
     }
 
@@ -2558,11 +2573,39 @@ body.cursor-hovered .cursor-corner.br {
 }
 
 .corollario-live-heading h2 {
+    width: fit-content;
     margin: 18px 0 0;
+    color: var(--corollario-blue);
+    background-image: linear-gradient(
+        110deg,
+        var(--corollario-blue) 0%,
+        var(--corollario-blue) 42%,
+        #9ed0ff 49%,
+        #d7eaff 51%,
+        var(--corollario-blue) 58%,
+        var(--corollario-blue) 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 250% 100%;
+    background-position: 100% 50%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     font-size: clamp(58px, 7vw, 104px);
     font-weight: 650;
     line-height: 0.92;
     letter-spacing: -0.06em;
+    animation: next-project-shimmer 4.5s linear infinite;
+    will-change: background-position;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .corollario-live-heading h2 {
+        color: var(--corollario-blue);
+        background-image: none;
+        -webkit-text-fill-color: currentColor;
+        animation: none;
+    }
 }
 
 .corollario-live-heading a,

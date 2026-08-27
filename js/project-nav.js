@@ -1,6 +1,6 @@
 (function () {
-    const projects = [
-        { title: 'Il Corollario', url: 'project1.html', image: 'images/previews/corollario_preview.png' },
+    const projectCatalog = [
+        { published: false, title: 'Il Corollario', url: 'project1.html', image: 'images/previews/corollario_preview.png' },
         { title: 'Digital Forest', url: 'project2.html', image: 'images/previews/data_preview.jpg' },
         { title: "Falken's Room", url: 'project3.html', image: 'images/previews/falkens_preview.jpg' },
         { title: 'VOTE', url: 'project4.html', image: 'images/previews/vote_preview.jpg' },
@@ -8,6 +8,8 @@
         { title: 'Beyondwaste', url: 'project6.html', image: 'images/previews/beyond_preview.jpg' },
         { title: 'Salotto di Milano', url: 'project7.html', image: 'images/previews/salotto_preview.jpg' }
     ];
+
+    const projects = projectCatalog.filter(project => project.published !== false);
 
     const currentMatch = window.location.pathname.match(/project([1-7])\.html$/i);
     if (!currentMatch) return;
@@ -82,7 +84,9 @@
         }, { passive: true });
     }
 
-    const currentIndex = Number(currentMatch[1]) - 1;
+    const currentPath = window.location.pathname.split('/').pop().toLowerCase();
+    const currentIndex = projects.findIndex(project => project.url.toLowerCase() === currentPath);
+    if (currentIndex === -1) return;
     const nextIndex = (currentIndex + 1) % projects.length;
     const nextProject = projects[nextIndex];
     const nextNumber = String(nextIndex + 1).padStart(2, '0');
