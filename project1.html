@@ -5,12 +5,11 @@
     <meta charset="UTF-8">
     <meta name="theme-color" content="#ffffff">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
     <title>Giacomo Garetto - Il Corollario</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260827">
+    <link rel="stylesheet" href="style.css?v=20260907f">
 </head>
 
 <body class="project-page corollario-page inverted-theme">
@@ -21,18 +20,35 @@
 
     <div id="project-header">
         <h1>Il Corollario</h1>
-        <p>Communication design for human-centred explainable AI in civic deliberation.</p>
+        <p>Human-centred communication design for explainable AI in civic deliberation.</p>
     </div>
 
     <main id="galleria">
-        <div class="full-width-media corollario-hero">
-            <figure scroll="reveal">
+        <section class="corollario-live-demo corollario-hero" aria-labelledby="live-demo-title">
+            <header class="corollario-demo-toolbar">
+                <h2 id="live-demo-title">Explore the discussion.</h2>
+                <span id="demo-status" class="visually-hidden" role="status">Loading demo…</span>
+                <div class="corollario-demo-actions">
+                    <button id="demo-toggle" class="corollario-demo-button corollario-demo-button--primary" type="button" aria-pressed="false" aria-controls="corollario-demo" aria-describedby="demo-status" disabled>Explore demo</button>
+                    <a id="demo-continue" class="corollario-demo-button" href="#project-story">Continue reading ↓</a>
+                    <a class="corollario-demo-button" href="ilcorollario-demo/index.html" target="_blank" rel="noopener">Fullscreen ↗</a>
+                </div>
+            </header>
+            <div class="corollario-demo-desktop">
+                <div class="corollario-live-frame">
+                    <iframe id="corollario-demo" data-src="ilcorollario-demo/index.html" title="Interactive Il Corollario prototype"
+                        loading="eager" tabindex="-1" inert></iframe>
+                </div>
+                <noscript><p>Open the fullscreen prototype using the link above to explore the demo.</p></noscript>
+            </div>
+            <div class="corollario-demo-mobile">
                 <img src="images/COROLLARIO/platform-main.png"
                     alt="Il Corollario interface mapping positions, arguments, clusters and keywords in a public debate">
-            </figure>
-        </div>
+                <p>Explore the interactive prototype on desktop.</p>
+            </div>
+        </section>
 
-        <div class="text-block-center corollario-lead">
+        <div id="project-story" class="text-block-center corollario-lead" tabindex="-1">
             <p>Il Corollario transforms AI-mediated public discussions into explorable maps, making their structure,
                 transformations and sources open to interpretation.</p>
         </div>
@@ -171,52 +187,59 @@
                 <h2 id="feature-orient-title">Build a shared language before entering the graph.</h2>
             </div>
             <figure scroll="reveal">
-                <img src="images/COROLLARIO/platform-tutorial.png" alt="Il Corollario guided onboarding">
+                <video autoplay loop muted playsinline data-no-audio poster="images/COROLLARIO/platform-tutorial.png"
+                    aria-label="Il Corollario guided onboarding">
+                    <source src="videos/tuto.mp4" type="video/mp4">
+                </video>
             </figure>
         </section>
 
-        <section class="corollario-feature corollario-feature--reverse" aria-labelledby="feature-explore-title">
+        <section class="corollario-feature corollario-feature--reverse" aria-labelledby="feature-timeline-title">
             <div class="corollario-feature-copy">
-                <span>02 — EXPLORE</span>
+                <span>02 — TIMELINE</span>
+                <h2 id="feature-timeline-title">Explore how the discussion evolves over time.</h2>
+            </div>
+            <figure scroll="reveal">
+                <video autoplay loop muted playsinline data-no-audio aria-label="Timeline showing how a discussion evolves over time">
+                    <source src="videos/timeline.mp4" type="video/mp4">
+                </video>
+            </figure>
+        </section>
+
+        <section class="corollario-feature" aria-labelledby="feature-explore-title">
+            <div class="corollario-feature-copy">
+                <span>03 — EXPLORE</span>
                 <h2 id="feature-explore-title">Move between overview, arguments and full context.</h2>
             </div>
             <figure scroll="reveal">
-                <img src="images/COROLLARIO/platform-contested.png" alt="Most Contested suggested view in Il Corollario">
+                <video autoplay loop muted playsinline data-no-audio poster="images/COROLLARIO/platform-contested.png"
+                    aria-label="Navigating between different levels of depth in Il Corollario">
+                    <source src="videos/depth.mp4" type="video/mp4">
+                </video>
             </figure>
         </section>
 
-        <section class="corollario-feature" aria-labelledby="feature-verify-title">
+        <section class="corollario-feature corollario-feature--reverse" aria-labelledby="feature-verify-title">
             <div class="corollario-feature-copy">
-                <span>03 — VERIFY</span>
+                <span>04 — VERIFY</span>
                 <h2 id="feature-verify-title">Trace collective patterns back to individual contributions.</h2>
             </div>
             <figure scroll="reveal">
-                <img src="images/COROLLARIO/platform-detail.png" alt="Contribution detail panel with source link">
+                <video autoplay loop muted playsinline data-no-audio poster="images/COROLLARIO/platform-detail.png"
+                    aria-label="Exploring an individual contribution and its source in Il Corollario">
+                    <source src="videos/explore.mp4" type="video/mp4">
+                </video>
             </figure>
         </section>
 
-        <section class="corollario-feature corollario-feature--reverse" aria-labelledby="feature-question-title">
+        <section class="corollario-feature" aria-labelledby="feature-question-title">
             <div class="corollario-feature-copy">
-                <span>04 — QUESTION THE AI</span>
+                <span>05 — QUESTION THE AI</span>
                 <h2 id="feature-question-title">Expose what happened between public input and visual output.</h2>
             </div>
             <figure scroll="reveal">
                 <img src="images/COROLLARIO/platform-pipeline.png" alt="From Data to Knowledge disclosure panel">
             </figure>
-        </section>
-
-        <section class="corollario-live-demo" aria-labelledby="live-demo-title">
-            <header class="corollario-live-heading">
-                <div>
-                    <p class="corollario-kicker">LIVE DESKTOP PROTOTYPE</p>
-                    <h2 id="live-demo-title">Explore the discussion.</h2>
-                </div>
-                <a href="ilcorollario-demo/index.html" target="_blank" rel="noopener">OPEN FULLSCREEN ↗</a>
-            </header>
-            <div class="corollario-live-frame">
-                <iframe data-src="ilcorollario-demo/index.html" title="Interactive Il Corollario prototype"
-                    loading="lazy"></iframe>
-            </div>
         </section>
 
         <nav class="corollario-links" aria-label="Il Corollario project links">
@@ -296,22 +319,10 @@
                 });
             });
 
-            const demoFrame = document.querySelector('.corollario-live-frame iframe');
-            const desktopViewport = window.matchMedia('(min-width: 769px)');
-            const syncDemoFrame = (event) => {
-                if (!demoFrame) return;
-                if (event.matches && !demoFrame.getAttribute('src')) {
-                    demoFrame.setAttribute('src', demoFrame.dataset.src);
-                } else if (!event.matches && demoFrame.getAttribute('src')) {
-                    demoFrame.removeAttribute('src');
-                }
-            };
-
-            syncDemoFrame(desktopViewport);
-            desktopViewport.addEventListener('change', syncDemoFrame);
         });
     </script>
-    <script src="js/project-nav.js?v=20260827"></script>
+    <script src="js/corollario-demo.js?v=20260907d"></script>
+    <script src="js/project-nav.js?v=20260907f"></script>
 </body>
 
 </html>

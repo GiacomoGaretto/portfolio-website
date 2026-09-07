@@ -1,6 +1,6 @@
 (function () {
     const projectCatalog = [
-        { published: false, title: 'Il Corollario', url: 'project1.html', image: 'images/previews/corollario_preview.png' },
+        { published: true, title: 'Il Corollario', url: 'project1.html', image: 'images/previews/corollario_preview.png' },
         { title: 'Digital Forest', url: 'project2.html', image: 'images/previews/data_preview.jpg' },
         { title: "Falken's Room", url: 'project3.html', image: 'images/previews/falkens_preview.jpg' },
         { title: 'VOTE', url: 'project4.html', image: 'images/previews/vote_preview.jpg' },
@@ -14,7 +14,29 @@
     const currentMatch = window.location.pathname.match(/project([1-7])\.html$/i);
     if (!currentMatch) return;
 
-    const projectVideos = Array.from(document.querySelectorAll('#galleria video'));
+    // Keep editorial copy together at the most fragile wrap points. Non-breaking
+    // spaces prevent isolated articles and short final lines without hard-coding
+    // line breaks for a specific viewport.
+    const editorialCopy = document.querySelectorAll([
+        '#project-header p',
+        '#galleria p:not(.corollario-kicker)',
+        '#galleria h2',
+        '#galleria h3',
+        '#galleria h4'
+    ].join(', '));
+
+    editorialCopy.forEach(element => {
+        let text = element.textContent.replace(/\s+/g, ' ').trim();
+        text = text.replace(/\b(a|an|the)\s+(?=\S)/gi, '$1\u00a0');
+
+        if (element.tagName === 'P' && text.split(/\s+/).length > 3) {
+            text = text.replace(/(\S+)\s+(\S+)\s+(\S+)$/, '$1\u00a0$2\u00a0$3');
+        }
+
+        element.textContent = text;
+    });
+
+    const projectVideos = Array.from(document.querySelectorAll('#galleria video:not([data-no-audio])'));
 
     projectVideos.forEach((video, index) => {
         const container = video.parentElement;
