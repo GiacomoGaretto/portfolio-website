@@ -901,6 +901,19 @@ body.project-focus #toggleRotation {
     overflow-y: auto;
 }
 
+.project-page p {
+    text-wrap: pretty;
+    widows: 3;
+    orphans: 3;
+}
+
+.project-page h1,
+.project-page h2,
+.project-page h3,
+.project-page h4 {
+    text-wrap: balance;
+}
+
 
 #homeBtn {
     margin: 0;
@@ -935,19 +948,20 @@ body.project-focus #toggleRotation {
 }
 
 #project-header p {
-    grid-column: 1 / 9;
-    max-width: 1050px;
+    grid-column: 1 / 8;
+    max-width: 23ch;
     margin: clamp(28px, 3.5vw, 52px) 0 0;
     font-size: clamp(27px, 2.7vw, 42px);
     font-weight: 400;
     line-height: 1.08;
     letter-spacing: -0.035em;
+    text-wrap: balance;
 }
 
 #galleria {
     display: flex;
     flex-direction: column;
-    gap: clamp(28px, 3vw, 48px);
+    gap: clamp(38px, 4vw, 68px);
     width: 100%;
     margin: 0 auto;
     padding: 0 var(--project-inline) clamp(100px, 12vw, 190px);
@@ -1083,16 +1097,16 @@ body.project-focus #toggleRotation {
 
 .text-block--labelled {
     counter-increment: project-copy;
-    padding-top: clamp(26px, 2vw, 36px);
-    padding-bottom: clamp(8px, 0.8vw, 14px);
+    padding-top: clamp(36px, 3.2vw, 52px);
+    padding-bottom: clamp(22px, 2.2vw, 36px);
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #galleria > .text-block:not(.text-block--labelled),
 #galleria > .text-block-right,
 #galleria > .text-block-center {
-    padding-top: clamp(8px, 0.8vw, 14px);
-    padding-bottom: clamp(8px, 0.8vw, 14px);
+    padding-top: clamp(24px, 2.4vw, 40px);
+    padding-bottom: clamp(24px, 2.4vw, 40px);
 }
 
 .text-block--labelled::before {
@@ -1111,7 +1125,7 @@ body.project-focus #toggleRotation {
 .text-block p,
 .text-block-right p {
     grid-column: 1 / 7;
-    max-width: none;
+    max-width: 62ch;
     margin: 0;
     font-size: 20px;
     line-height: 26px;
@@ -1147,8 +1161,10 @@ body.project-focus #toggleRotation {
 
 .text-block-center p {
     grid-column: 3 / 11;
-    max-width: none;
+    width: 100%;
+    max-width: 26ch;
     margin: 0;
+    justify-self: center;
     font-size: clamp(36px, 4.2vw, 62px);
     line-height: 1.03;
     font-weight: 400;
@@ -1198,6 +1214,8 @@ body.project-focus #toggleRotation {
 .image-right .text-block {
     grid-column: 1 / 13;
     width: 100%;
+    padding-top: clamp(30px, 3vw, 48px);
+    padding-bottom: clamp(18px, 1.8vw, 30px);
 }
 
 .image-right .text-block p {
@@ -1272,7 +1290,7 @@ figure[scroll="reveal"].show {
     grid-column: 1 / 5;
     grid-row: 2;
     align-self: end;
-    padding-top: clamp(24px, 2.5vw, 40px);
+    padding-top: clamp(32px, 3vw, 50px);
 }
 
 .image-double__copy p {
@@ -1520,7 +1538,7 @@ figure[scroll="reveal"].show {
     }
 
     #galleria {
-        gap: 30px;
+        gap: 38px;
         padding-right: var(--project-inline);
         padding-bottom: 96px;
         padding-left: var(--project-inline);
@@ -1548,6 +1566,7 @@ figure[scroll="reveal"].show {
     }
 
     #project-header p {
+        max-width: 21ch;
         margin-top: 24px;
         font-size: clamp(21px, 6vw, 28px);
         line-height: 1.08;
@@ -1594,7 +1613,7 @@ figure[scroll="reveal"].show {
         flex: 0 0 auto;
         align-self: start;
         width: 100%;
-        padding-top: 14px;
+        padding-top: 22px;
     }
 
     /* La griglia editoriale diventa una colonna mantenendo label e ritmo. */
@@ -1607,7 +1626,13 @@ figure[scroll="reveal"].show {
         max-width: 100%;
         text-align: left;
         margin: 0;
-        padding-top: 14px;
+        padding-top: 24px;
+        padding-bottom: 24px;
+    }
+
+    .text-block--labelled {
+        padding-top: 30px;
+        padding-bottom: 26px;
     }
 
     .text-block--labelled::before,
@@ -1627,6 +1652,8 @@ figure[scroll="reveal"].show {
         grid-template-columns: 1fr;
         gap: 18px;
         margin: 0;
+        padding-top: 28px;
+        padding-bottom: 28px;
     }
 
     .text-block-center::before,
@@ -1639,7 +1666,7 @@ figure[scroll="reveal"].show {
     }
 
     .text-block-center p {
-        max-width: 100%;
+        max-width: 24ch;
         font-size: clamp(30px, 9vw, 42px);
         line-height: 1.06;
     }
@@ -2113,6 +2140,7 @@ body.cursor-hovered .cursor-corner.br {
 
 .corollario-page #galleria {
     gap: 0;
+    padding-bottom: 0;
 }
 
 .corollario-page #project-header p {
@@ -2121,7 +2149,6 @@ body.cursor-hovered .cursor-corner.br {
 
 .corollario-hero {
     margin-bottom: clamp(56px, 7vw, 112px);
-    overflow: hidden;
     background: var(--corollario-paper);
 }
 
@@ -2169,13 +2196,13 @@ body.cursor-hovered .cursor-corner.br {
 .corollario-tutorial {
     width: calc(100% + (var(--project-inline) * 2));
     margin-left: calc(var(--project-inline) * -1);
-    padding: clamp(88px, 10vw, 160px) var(--project-inline);
+    padding: clamp(72px, 8vw, 128px) var(--project-inline);
     color: var(--corollario-ink);
     background: #ffffff;
 }
 
 .corollario-research {
-    padding: 0 0 clamp(112px, 13vw, 208px);
+    padding: 0 0 clamp(88px, 9vw, 144px);
 }
 
 .corollario-page .visually-hidden {
@@ -2409,7 +2436,7 @@ body.cursor-hovered .cursor-corner.br {
 }
 
 .corollario-rq-main {
-    grid-column: 1 / 13;
+    grid-column: 3 / 13;
 }
 
 .corollario-rq-main h3 {
@@ -2423,7 +2450,7 @@ body.cursor-hovered .cursor-corner.br {
 
 .corollario-rq-specifics {
     display: grid;
-    grid-column: 1 / 13;
+    grid-column: 3 / 13;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--project-grid-gap);
     margin-top: clamp(64px, 7vw, 112px);
@@ -2447,7 +2474,7 @@ body.cursor-hovered .cursor-corner.br {
 }
 
 .corollario-before-after {
-    padding: clamp(112px, 13vw, 210px) 0;
+    padding: clamp(80px, 8vw, 128px) 0;
 }
 
 .corollario-comparison {
@@ -2475,6 +2502,31 @@ body.cursor-hovered .cursor-corner.br {
     width: 100%;
     aspect-ratio: 16 / 10;
     object-fit: cover;
+}
+
+@media (min-width: 769px) {
+    .corollario-comparison {
+        grid-template-columns: minmax(0, 44.17fr) minmax(0, 55.83fr);
+    }
+
+    .corollario-comparison figure:first-child {
+        grid-column: 1;
+    }
+
+    .corollario-comparison figure:last-child {
+        grid-column: 2;
+    }
+
+    .corollario-comparison figure:first-child img {
+        aspect-ratio: 1.4134 / 1;
+        object-position: center;
+    }
+
+    .corollario-comparison figure:last-child img {
+        aspect-ratio: 1917 / 1073;
+        object-fit: contain;
+        object-position: center;
+    }
 }
 
 .corollario-comparison figcaption,
@@ -2510,7 +2562,7 @@ body.cursor-hovered .cursor-corner.br {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: var(--project-grid-gap);
     align-items: end;
-    padding: clamp(110px, 13vw, 210px) 0;
+    padding: clamp(92px, 11vw, 176px) 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.18);
 }
 
@@ -2538,12 +2590,21 @@ body.cursor-hovered .cursor-corner.br {
     margin: 0;
 }
 
-.corollario-feature figure img {
+.corollario-feature figure img,
+.corollario-feature figure video {
     display: block;
     width: 100%;
-    aspect-ratio: 16 / 10;
     object-fit: cover;
     object-position: center;
+}
+
+.corollario-feature figure img {
+    aspect-ratio: 16 / 10;
+}
+
+.corollario-feature figure video {
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
 }
 
 .corollario-feature--reverse .corollario-feature-copy {
@@ -2564,17 +2625,73 @@ body.cursor-hovered .cursor-corner.br {
     background: #ffffff;
 }
 
-.corollario-live-heading {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 32px;
-    margin-bottom: clamp(44px, 5vw, 76px);
+.corollario-live-demo.corollario-hero {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
-.corollario-live-heading h2 {
+.corollario-demo-desktop,
+.corollario-demo-toolbar,
+#project-story {
+    scroll-margin-top: calc(6vh + 16px);
+}
+
+.corollario-demo-toolbar {
+    position: sticky;
+    top: var(--demo-header-height, 6vh);
+    scroll-margin-top: var(--demo-header-height, 6vh);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    font-size: 14px;
+}
+
+.corollario-demo-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.corollario-demo-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 148px;
+    min-height: 42px;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+    border-radius: 0;
+    padding: 10px 14px;
+    background: #fff;
+    color: var(--corollario-ink);
+    font: inherit;
+    font-size: 13px;
+    line-height: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.corollario-demo-button--primary {
+    border-color: var(--corollario-blue);
+    background: var(--corollario-blue);
+    color: #fff;
+}
+
+.corollario-demo-toolbar button:disabled { opacity: 0.5; cursor: wait; }
+.corollario-demo-button:hover { border-color: var(--corollario-blue); }
+.corollario-demo-toolbar :focus-visible { outline: 2px solid var(--corollario-blue); outline-offset: 4px; }
+.corollario-demo-mobile { display: none; }
+
+.corollario-demo-toolbar h2 {
+    flex: 1;
     width: fit-content;
-    margin: 18px 0 0;
+    margin: 0;
     color: var(--corollario-blue);
     background-image: linear-gradient(
         110deg,
@@ -2591,16 +2708,16 @@ body.cursor-hovered .cursor-corner.br {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: clamp(58px, 7vw, 104px);
+    font-size: clamp(22px, 2vw, 30px);
     font-weight: 650;
-    line-height: 0.92;
-    letter-spacing: -0.06em;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
     animation: next-project-shimmer 4.5s linear infinite;
     will-change: background-position;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .corollario-live-heading h2 {
+    .corollario-demo-toolbar h2 {
         color: var(--corollario-blue);
         background-image: none;
         -webkit-text-fill-color: currentColor;
@@ -2608,36 +2725,31 @@ body.cursor-hovered .cursor-corner.br {
     }
 }
 
-.corollario-live-heading a,
 .corollario-links a {
     color: inherit;
     text-decoration: none;
 }
 
-.corollario-live-heading a {
-    padding-bottom: 8px;
-    border-bottom: 1px solid currentColor;
-    font-family: 'Space Mono', monospace;
-    font-size: 14px;
-    line-height: 18px;
-    letter-spacing: 0.06em;
-}
-
 .corollario-live-frame {
     position: relative;
     width: 100%;
-    height: min(78vh, 880px);
-    min-height: 680px;
+    height: calc(100vh - var(--demo-header-height, 6vh) - var(--demo-toolbar-height, 72px));
+    height: calc(100dvh - var(--demo-header-height, 6vh) - var(--demo-toolbar-height, 72px));
+    box-sizing: border-box;
     overflow: hidden;
     border: 1px solid rgba(0, 0, 0, 0.22);
     background: #eeeeee;
 }
 
 .corollario-live-frame iframe {
+    display: block;
     width: 100%;
     height: 100%;
     border: 0;
+    pointer-events: none;
 }
+
+.is-interacting .corollario-live-frame iframe { pointer-events: auto; }
 
 .corollario-links {
     display: grid;
@@ -2696,7 +2808,7 @@ body.cursor-hovered .cursor-corner.br {
 
     .corollario-research {
         padding-top: 0;
-        padding-bottom: 96px;
+        padding-bottom: 72px;
     }
 
     .corollario-section-heading .corollario-kicker,
@@ -2713,8 +2825,8 @@ body.cursor-hovered .cursor-corner.br {
     }
 
     .corollario-tutorial {
-        padding-top: 80px;
-        padding-bottom: 80px;
+        padding-top: 64px;
+        padding-bottom: 64px;
     }
 
     .corollario-section-heading {
@@ -2797,7 +2909,11 @@ body.cursor-hovered .cursor-corner.br {
     }
 
     .corollario-rq-main h3 {
-        font-size: clamp(36px, 10.5vw, 48px);
+        font-size: clamp(28px, 8vw, 36px);
+    }
+
+    .corollario-accordion-panel--rqs {
+        margin-left: 56px; /* summary index (42px) + gap (14px) */
     }
 
     .corollario-rq-specifics {
@@ -2810,8 +2926,8 @@ body.cursor-hovered .cursor-corner.br {
     }
 
     .corollario-before-after {
-        padding-top: 96px;
-        padding-bottom: 96px;
+        padding-top: 64px;
+        padding-bottom: 72px;
     }
 
     .corollario-comparison {
@@ -2834,8 +2950,8 @@ body.cursor-hovered .cursor-corner.br {
 
     .corollario-feature {
         gap: 40px;
-        padding-top: 96px;
-        padding-bottom: 96px;
+        padding-top: 80px;
+        padding-bottom: 80px;
     }
 
     .corollario-feature-copy,
@@ -2851,9 +2967,14 @@ body.cursor-hovered .cursor-corner.br {
 
     /* Il prodotto è stato progettato per un viewport desktop: sul mobile
        mostriamo il racconto visuale senza incorporare l'interfaccia live. */
-    .corollario-live-demo {
+    .corollario-demo-desktop,
+    .corollario-demo-actions {
         display: none;
     }
+
+    .corollario-demo-mobile { display: block; }
+    .corollario-demo-mobile p { margin: 16px 0 0; font-size: 14px; }
+    .corollario-demo-toolbar { position: static; }
 
     .corollario-links a:first-child {
         display: none;
