@@ -2602,6 +2602,11 @@ body.cursor-hovered .cursor-corner.br {
     aspect-ratio: 16 / 10;
 }
 
+.corollario-feature figure img.corollario-feature-image--native {
+    aspect-ratio: 1919 / 1079;
+    object-fit: contain;
+}
+
 .corollario-feature figure video {
     aspect-ratio: 16 / 9;
     object-fit: contain;
